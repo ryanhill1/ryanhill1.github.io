@@ -1,0 +1,15 @@
+# Jekyll generated files
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Bundler directories
+.bundle/
+vendor/
+
+# Ignore Gemfile.lock (GitHub Pages uses its own version)
+Gemfile.lock
+
+# Node.js modules
+node_modules/
