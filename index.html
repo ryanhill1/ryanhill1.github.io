@@ -3,10 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
+    <title>ryanhill.tech</title>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p>This is my first GitHub Pages website.</p>
+    <h1>ryanhill.tech</h1>
+    <p>Welcome to my personal webpage.</p>
+</body>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Links with Dividers</title>
+    <style>
+        .link-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            z-index: 1000;
+        }
+
+        .link-row a {
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #000;
+            font-size: 18px;
+        }
+
+        .divider {
+            border-left: 1px solid #ccc;
+            height: 20px;
+            margin: 0 10px;
+        }
+
+        .link-row a:hover {
+            background-color: #f0f0f0;
+        }
+
+        body {
+            margin-bottom: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="link-row">
+        <a href="https://www.linkedin.com/in/ryan-james-hill/">LinkedIn</a>
+        <div class="divider"></div>
+        <a href="https://scholar.google.com/citations?user=PHnZtT4AAAAJ&hl">Google Scholar</a>
+        <div class="divider"></div>
+        <a href="https://github.com/ryanhill1">GitHub</a>
+        <div class="divider"></div>
+        <a href="https://quantumcomputing.stackexchange.com/users/13991/ryanhill1?tab=profile">Stack Exchange</a>
+        <div class="divider"></div>
+        <a href="https://docs.qbraid.com/">qBraid</a>
+    </div>
 </body>
 </html>
