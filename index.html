@@ -1,68 +1,244 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
     <title>ryanhill.tech</title>
-</head>
-<body>
-    <h1>ryanhill.tech</h1>
-    <p>Welcome to my personal webpage.</p>
-</body>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      #content {
+        position: relative;
+        z-index: 1;
+        padding: 20px;
+      }
+
+      #gameCanvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 0;
+      }
+
+      #counter {
+        position: fixed;
+        top: 10px;
+        right: 20px;
+        z-index: 2;
+        font-size: 24px;
+        color: #000;
+        background-color: rgba(255, 255, 255, 0.7);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-family: Arial, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="content">
+      <h1>ryanhill.tech</h1>
+      <p>Welcome to my personal website!</p>
+      <p>Try not to let too many wavefunctions crowd the content.</p>
+    </div>
+
+    <div id="counter">Collapsed: 0</div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      resizeCanvas();
+
+      window.addEventListener('resize', resizeCanvas);
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      let waveFunctions = [];
+
+      let collapseCount = 0;
+
+      const counterDisplay = document.getElementById('counter');
+      function updateCounter() {
+        counterDisplay.textContent = 'Collapsed: ' + collapseCount;
+      }
+
+      class WaveFunction {
+        constructor() {
+          this.radius = 20 + Math.random() * 30; // Random radius between 20 and 50
+          this.x =
+            Math.random() * (canvas.width - 2 * this.radius) + this.radius;
+          this.y =
+            Math.random() * (canvas.height - 2 * this.radius) + this.radius;
+          this.speedX = (Math.random() - 0.5) * 0.5; // Slower speed
+          this.speedY = (Math.random() - 0.5) * 0.5;
+          this.alpha = 0.7; // Initial transparency
+          this.isCollapsing = false; // Flag to check if collapsing
+          this.collapseDuration = 500; // Duration of the collapse animation in milliseconds
+          this.collapseStartTime = null; // Timestamp when collapse starts
+        }
+
+        draw() {
+          ctx.save();
+          ctx.beginPath();
+          ctx.globalAlpha = this.alpha;
+          ctx.fillStyle = 'rgba(100, 100, 255, 1)';
+          ctx.shadowColor = 'rgba(100, 100, 255, 1)';
+          ctx.shadowBlur = 15 * this.alpha; // Reduce shadow as it fades
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.closePath();
+          ctx.restore();
+        }
+
+        update() {
+          if (this.isCollapsing) {
+            // Update alpha for fade-out effect
+            const elapsed = Date.now() - this.collapseStartTime;
+            this.alpha = Math.max(
+              0,
+              0.7 * (1 - elapsed / this.collapseDuration),
+            );
+
+            if (this.alpha <= 0) {
+              // Remove the wave function from the array
+              const index = waveFunctions.indexOf(this);
+              if (index > -1) {
+                waveFunctions.splice(index, 1);
+              }
+            }
+            return; // Skip movement updates during collapse
+          }
+
+          this.x += this.speedX;
+          this.y += this.speedY;
+
+          // Bounce off the walls
+          if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+            this.speedX = -this.speedX;
+          }
+          if (
+            this.y + this.radius > canvas.height ||
+            this.y - this.radius < 0
+          ) {
+            this.speedY = -this.speedY;
+          }
+        }
+
+        collapse() {
+          this.isCollapsing = true;
+          this.collapseStartTime = Date.now();
+        }
+      }
+
+      // Add a new wave function every 2 seconds
+      setInterval(() => {
+        if (waveFunctions.length < 10) {
+          // Limit the number of wave functions
+          waveFunctions.push(new WaveFunction());
+        }
+      }, 2000);
+
+      // Animation loop
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        waveFunctions.forEach((wf) => {
+          wf.update();
+          wf.draw();
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+
+      canvas.addEventListener('click', function (event) {
+        const rect = canvas.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const clickY = event.clientY - rect.top;
+
+        for (let i = waveFunctions.length - 1; i >= 0; i--) {
+          const wf = waveFunctions[i];
+          const distance = Math.hypot(wf.x - clickX, wf.y - clickY);
+          if (distance < wf.radius) {
+            if (!wf.isCollapsing) {
+              wf.collapse();
+
+              collapseCount++;
+              updateCounter();
+            }
+
+            break; // Remove this line if you want to collapse multiple overlapping wave functions
+          }
+        }
+      });
+    </script>
+  </body>
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Links with Dividers</title>
     <style>
-        .link-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #fff;
-            padding: 10px 0;
-            border-top: 1px solid #ddd;
-            z-index: 1000;
-        }
+      .link-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        padding: 10px 0;
+        border-top: 1px solid #ddd;
+        z-index: 1000;
+      }
 
-        .link-row a {
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            color: #000;
-            font-size: 18px;
-        }
+      .link-row a {
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        color: #000;
+        font-size: 18px;
+      }
 
-        .divider {
-            border-left: 1px solid #ccc;
-            height: 20px;
-            margin: 0 10px;
-        }
+      .divider {
+        border-left: 1px solid #ccc;
+        height: 20px;
+        margin: 0 10px;
+      }
 
-        .link-row a:hover {
-            background-color: #f0f0f0;
-        }
+      .link-row a:hover {
+        background-color: #f0f0f0;
+      }
 
-        body {
-            margin-bottom: 60px;
-        }
+      body {
+        margin-bottom: 60px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="link-row">
-        <a href="https://www.linkedin.com/in/ryan-james-hill/">LinkedIn</a>
-        <div class="divider"></div>
-        <a href="https://scholar.google.com/citations?user=PHnZtT4AAAAJ&hl">Google Scholar</a>
-        <div class="divider"></div>
-        <a href="https://github.com/ryanhill1">GitHub</a>
-        <div class="divider"></div>
-        <a href="https://quantumcomputing.stackexchange.com/users/13991/ryanhill1?tab=profile">Stack Exchange</a>
-        <div class="divider"></div>
-        <a href="https://docs.qbraid.com/">qBraid</a>
+      <a href="https://www.linkedin.com/in/ryan-james-hill/">LinkedIn</a>
+      <div class="divider"></div>
+      <a href="https://scholar.google.com/citations?user=PHnZtT4AAAAJ&hl"
+        >Google Scholar</a
+      >
+      <div class="divider"></div>
+      <a href="https://github.com/ryanhill1">GitHub</a>
+      <div class="divider"></div>
+      <a
+        href="https://quantumcomputing.stackexchange.com/users/13991/ryanhill1?tab=profile"
+        >Stack Exchange</a
+      >
+      <div class="divider"></div>
+      <a href="https://docs.qbraid.com/">qBraid</a>
     </div>
-</body>
+  </body>
 </html>

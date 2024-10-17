@@ -1,0 +1,22 @@
+{
+  "name": "ryanhill1.github.io",
+  "version": "1.0.0",
+  "description": "Personal website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write '**/*.{html,css,js}'",
+    "format:check": "prettier --check '**/*.{html,css,js}'",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "husky": "^9.1.6",
+    "prettier": "^3.3.3"
+  },
+  "type": "module"
+}

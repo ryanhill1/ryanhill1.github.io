@@ -7,3 +7,9 @@ Open at http://localhost:8000
 ```bash
 python -m http.server
 ```
+
+## Formt
+
+```bash
+npm run format
+```
