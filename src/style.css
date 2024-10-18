@@ -1,0 +1,74 @@
+/* General body styles */
+body {
+  margin: 0;
+  overflow: hidden;
+  margin-bottom: 60px; /* Combine margin-bottom here */
+}
+
+/* Content styles */
+#content {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Canvas styles */
+#gameCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+/* Counter styles */
+#counter {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  z-index: 2;
+  font-size: 24px;
+  color: #000;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+}
+
+/* Link row styles */
+.link-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Links within the footer */
+.link-row a {
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  color: #000;
+  font-size: 18px;
+  pointer-events: auto; /* Enable clicking on the links */
+}
+
+/* Divider between links */
+.divider {
+  border-left: 1px solid #ccc;
+  height: 20px;
+  margin: 0 10px;
+}
+
+/* Hover effect for links */
+.link-row a:hover {
+  background-color: #f0f0f0;
+}
