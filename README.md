@@ -50,6 +50,14 @@ You can also check the formatting without making changes using:
 npm run format:check
 ```
 
+## Commit Messages
+
+[Commitlint](https://github.com/conventional-changelog/commitlint/#what-is-commitlint) supported commit subjects list:
+
+```
+build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test
+```
+
 ## License
 
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
