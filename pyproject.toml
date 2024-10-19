@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "build_app"
+version = "0.1.0"
+description = "A project that runs a custom build script."
+requires-python = ">=3.11"
+dependencies = ["pillow>=11.0.0", "toml>=0.10.2"]
+
+[tool.setuptools]
+packages = {find = {where = ["build_app"], exclude = ["components", "style", "node_modules"]}}
+
+[project.optional-dependencies]
+lint = ["black>=24.10.0", "isort>=5.13.2", "pylint>=3.3.1", "mypy>=1.12.0"]
+
+[tool.black]
+line-length = 100
+
+[tool.pylint.'MESSAGES CONTROL']
+max-line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.rh1.favicon]
+text = "RH"
+font = "style/fonts/Roboto_Mono/static/RobotoMono-Regular.ttf"
+primary_color = "white"
+secondary_color = "black"
+write_to = "build/assets/favicon.ico"

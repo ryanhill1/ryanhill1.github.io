@@ -11,13 +11,6 @@ function resizeCanvas() {
 
 let waveFunctions = [];
 
-let collapseCount = 0;
-
-const counterDisplay = document.getElementById('counter');
-function updateCounter() {
-  counterDisplay.textContent = 'Collapsed: ' + collapseCount;
-}
-
 class WaveFunction {
   constructor() {
     this.radius = 20 + Math.random() * 30; // Random radius between 20 and 50
@@ -111,9 +104,6 @@ canvas.addEventListener('click', function (event) {
     if (distance < wf.radius) {
       if (!wf.isCollapsing) {
         wf.collapse();
-
-        collapseCount++;
-        updateCounter();
       }
 
       break; // Remove this line if you want to collapse multiple overlapping wave functions
