@@ -72,3 +72,20 @@ body {
 .link-row a:hover {
   background-color: #f0f0f0;
 }
+
+/* Styling for the footer */
+footer {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
+
+.cc-license {
+  display: inline-block;
+}
+
+.cc-license img {
+  height: 22px;
+  margin-left: 3px;
+  vertical-align: text-bottom;
+}

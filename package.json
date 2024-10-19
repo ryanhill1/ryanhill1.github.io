@@ -1,22 +1,27 @@
 {
   "name": "ryanhill1.github.io",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Personal website",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
+    "dev": "python start_server.py",
+    "build": "python -m pip install build && python -m build --wheel && python -m pip install dist/*.whl --no-warn-script-location && python -m build_app",
+    "build:clean": "rimraf build dist && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write '**/*.{html,css,js}'",
     "format:check": "prettier --check '**/*.{html,css,js}'",
     "prepare": "husky"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Ryan Hill",
+  "license": "CC BY-NC-SA 4.0",
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "husky": "^9.1.6",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "rimraf": "^5.0.0"
   },
   "type": "module"
 }
+
