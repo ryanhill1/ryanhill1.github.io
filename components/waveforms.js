@@ -22,6 +22,7 @@ class WaveFunction {
     this.isCollapsing = false; // Flag to check if collapsing
     this.collapseDuration = 500; // Duration of the collapse animation in milliseconds
     this.collapseStartTime = null; // Timestamp when collapse starts
+    this.markedForRemoval = false; // New flag for removal
   }
 
   draw() {
@@ -44,11 +45,7 @@ class WaveFunction {
       this.alpha = Math.max(0, 0.7 * (1 - elapsed / this.collapseDuration));
 
       if (this.alpha <= 0) {
-        // Remove the wave function from the array
-        const index = waveFunctions.indexOf(this);
-        if (index > -1) {
-          waveFunctions.splice(index, 1);
-        }
+        this.markedForRemoval = true;
       }
       return; // Skip movement updates during collapse
     }
@@ -79,7 +76,7 @@ setInterval(() => {
   }
 }, 2000);
 
-// Animation loop
+// Updated Animation loop
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -88,24 +85,24 @@ function animate() {
     wf.draw();
   });
 
+  // Remove collapsed wave functions after iteration
+  waveFunctions = waveFunctions.filter((wf) => !wf.markedForRemoval);
+
   requestAnimationFrame(animate);
 }
 
 animate();
 
+// Updated click event listener
 canvas.addEventListener('click', function (event) {
   const rect = canvas.getBoundingClientRect();
   const clickX = event.clientX - rect.left;
   const clickY = event.clientY - rect.top;
 
-  for (let i = waveFunctions.length - 1; i >= 0; i--) {
-    const wf = waveFunctions[i];
+  for (let wf of waveFunctions) {
     const distance = Math.hypot(wf.x - clickX, wf.y - clickY);
-    if (distance < wf.radius) {
-      if (!wf.isCollapsing) {
-        wf.collapse();
-      }
-
+    if (distance < wf.radius && !wf.isCollapsing) {
+      wf.collapse();
       break; // Remove this line if you want to collapse multiple overlapping wave functions
     }
   }
