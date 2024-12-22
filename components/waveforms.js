@@ -12,51 +12,64 @@ function resizeCanvas() {
 let waveFunctions = [];
 
 class WaveFunction {
-  constructor() {
-    this.radius = 20 + Math.random() * 30; // Random radius between 20 and 50
+  constructor(isLink = false, label = '', url = '', color = '') {
+    this.radius = isLink ? 50 : 20 + Math.random() * 30;
     this.x = Math.random() * (canvas.width - 2 * this.radius) + this.radius;
     this.y = Math.random() * (canvas.height - 2 * this.radius) + this.radius;
-    this.speedX = (Math.random() - 0.5) * 0.5; // Slower speed
-    this.speedY = (Math.random() - 0.5) * 0.5;
-    this.alpha = 0.7; // Initial transparency
-    this.isCollapsing = false; // Flag to check if collapsing
-    this.collapseDuration = 500; // Duration of the collapse animation in milliseconds
-    this.collapseStartTime = null; // Timestamp when collapse starts
+    const baseSpeed = (Math.random() - 0.5) * 0.5;
+    this.speedX = isLink ? baseSpeed : baseSpeed * 2;
+    this.speedY = isLink ? baseSpeed : baseSpeed * 2;
+    this.alpha = 0.7;
+    this.isCollapsing = false;
+    this.collapseDuration = 500;
+    this.collapseStartTime = null;
+    this.markedForRemoval = false;
+    this.isLink = isLink;
+    this.label = label;
+    this.url = url;
+    this.color = isLink ? color : 'rgba(100, 100, 255, 1)';
   }
 
   draw() {
     ctx.save();
     ctx.beginPath();
     ctx.globalAlpha = this.alpha;
-    ctx.fillStyle = 'rgba(100, 100, 255, 1)';
-    ctx.shadowColor = 'rgba(100, 100, 255, 1)';
-    ctx.shadowBlur = 15 * this.alpha; // Reduce shadow as it fades
+    ctx.fillStyle = this.color;
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = 15 * this.alpha;
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
+
+    if (this.isLink) {
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 32px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.scale(0.5, 0.5);
+      ctx.rotate(0.01);
+      ctx.fillText(this.label, 0, 0);
+      ctx.restore();
+    }
+
     ctx.restore();
   }
 
-  update() {
+  update(deltaTime) {
     if (this.isCollapsing) {
-      // Update alpha for fade-out effect
       const elapsed = Date.now() - this.collapseStartTime;
       this.alpha = Math.max(0, 0.7 * (1 - elapsed / this.collapseDuration));
-
       if (this.alpha <= 0) {
-        // Remove the wave function from the array
-        const index = waveFunctions.indexOf(this);
-        if (index > -1) {
-          waveFunctions.splice(index, 1);
-        }
+        this.markedForRemoval = true;
       }
-      return; // Skip movement updates during collapse
+      return;
     }
 
-    this.x += this.speedX;
-    this.y += this.speedY;
+    this.x += this.speedX * deltaTime * 60;
+    this.y += this.speedY * deltaTime * 60;
 
-    // Bounce off the walls
     if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
       this.speedX = -this.speedX;
     }
@@ -66,47 +79,78 @@ class WaveFunction {
   }
 
   collapse() {
-    this.isCollapsing = true;
-    this.collapseStartTime = Date.now();
+    if (!this.isLink) {
+      this.isCollapsing = true;
+      this.collapseStartTime = Date.now();
+    }
   }
 }
 
-// Add a new wave function every 2 seconds
+waveFunctions.push(
+  new WaveFunction(
+    true,
+    'LinkedIn',
+    'https://www.linkedin.com/in/ryan-james-hill/',
+    '#0077B5',
+  ),
+);
+waveFunctions.push(
+  new WaveFunction(true, 'GitHub', 'https://github.com/ryanhill1', '#171515'),
+);
+waveFunctions.push(
+  new WaveFunction(
+    true,
+    'QCSE',
+    'https://quantumcomputing.stackexchange.com/users/13991/ryanhill1?tab=profile',
+    '#F48024',
+  ),
+);
+waveFunctions.push(
+  new WaveFunction(true, 'CV', '/static/Ryan-Hill-CV.pdf', '#C0C0C0'),
+);
+
 setInterval(() => {
-  if (waveFunctions.length < 10) {
-    // Limit the number of wave functions
-    waveFunctions.push(new WaveFunction());
-  }
+  waveFunctions.push(new WaveFunction());
 }, 2000);
 
-// Animation loop
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+const FIXED_TIME_STEP = 1000 / 60; // 60 FPS
+let lastTime = 0;
 
-  waveFunctions.forEach((wf) => {
-    wf.update();
-    wf.draw();
-  });
-
+function animate(currentTime) {
   requestAnimationFrame(animate);
+
+  const deltaTime = (currentTime - lastTime) / 1000;
+
+  if (deltaTime >= FIXED_TIME_STEP / 1000) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    waveFunctions.forEach((wf) => {
+      wf.update(deltaTime);
+      wf.draw();
+    });
+
+    waveFunctions = waveFunctions.filter((wf) => !wf.markedForRemoval);
+
+    lastTime = currentTime;
+  }
 }
 
-animate();
+animate(0);
 
 canvas.addEventListener('click', function (event) {
   const rect = canvas.getBoundingClientRect();
   const clickX = event.clientX - rect.left;
   const clickY = event.clientY - rect.top;
 
-  for (let i = waveFunctions.length - 1; i >= 0; i--) {
-    const wf = waveFunctions[i];
+  for (let wf of waveFunctions) {
     const distance = Math.hypot(wf.x - clickX, wf.y - clickY);
     if (distance < wf.radius) {
-      if (!wf.isCollapsing) {
+      if (wf.isLink) {
+        window.open(wf.url, '_blank');
+      } else if (!wf.isCollapsing) {
         wf.collapse();
       }
-
-      break; // Remove this line if you want to collapse multiple overlapping wave functions
+      break;
     }
   }
 });
