@@ -12,21 +12,22 @@ function resizeCanvas() {
 let waveFunctions = [];
 
 class WaveFunction {
-  constructor(isSpecial = false, label = '', url = '', color = '') {
-    this.radius = isSpecial ? 50 : 20 + Math.random() * 30;
+  constructor(isLink = false, label = '', url = '', color = '') {
+    this.radius = isLink ? 50 : 20 + Math.random() * 30;
     this.x = Math.random() * (canvas.width - 2 * this.radius) + this.radius;
     this.y = Math.random() * (canvas.height - 2 * this.radius) + this.radius;
-    this.speedX = (Math.random() - 0.5) * 0.5;
-    this.speedY = (Math.random() - 0.5) * 0.5;
+    const baseSpeed = (Math.random() - 0.5) * 0.5;
+    this.speedX = isLink ? baseSpeed : baseSpeed * 2;
+    this.speedY = isLink ? baseSpeed : baseSpeed * 2;
     this.alpha = 0.7;
     this.isCollapsing = false;
     this.collapseDuration = 500;
     this.collapseStartTime = null;
     this.markedForRemoval = false;
-    this.isSpecial = isSpecial;
+    this.isLink = isLink;
     this.label = label;
     this.url = url;
-    this.color = isSpecial ? color : 'rgba(100, 100, 255, 1)';
+    this.color = isLink ? color : 'rgba(100, 100, 255, 1)';
   }
 
   draw() {
@@ -40,7 +41,7 @@ class WaveFunction {
     ctx.fill();
     ctx.closePath();
 
-    if (this.isSpecial) {
+    if (this.isLink) {
       ctx.fillStyle = 'white';
       ctx.font = 'bold 32px Arial';
       ctx.textAlign = 'center';
@@ -78,7 +79,7 @@ class WaveFunction {
   }
 
   collapse() {
-    if (!this.isSpecial) {
+    if (!this.isLink) {
       this.isCollapsing = true;
       this.collapseStartTime = Date.now();
     }
@@ -108,9 +109,10 @@ waveFunctions.push(
 
 // Add a new wave function every 2 seconds
 setInterval(() => {
-  if (waveFunctions.filter((wf) => !wf.isSpecial).length < 10) {
-    waveFunctions.push(new WaveFunction());
-  }
+  waveFunctions.push(new WaveFunction());
+  // if (waveFunctions.filter((wf) => !wf.isLink).length < 10) {
+  //   waveFunctions.push(new WaveFunction());
+  // }
 }, 2000);
 
 const FIXED_TIME_STEP = 1000 / 60; // 60 FPS
@@ -145,7 +147,7 @@ canvas.addEventListener('click', function (event) {
   for (let wf of waveFunctions) {
     const distance = Math.hypot(wf.x - clickX, wf.y - clickY);
     if (distance < wf.radius) {
-      if (wf.isSpecial) {
+      if (wf.isLink) {
         window.open(wf.url, '_blank');
       } else if (!wf.isCollapsing) {
         wf.collapse();
