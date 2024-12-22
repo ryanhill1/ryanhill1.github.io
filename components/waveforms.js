@@ -86,7 +86,6 @@ class WaveFunction {
   }
 }
 
-// Add the special waveforms
 waveFunctions.push(
   new WaveFunction(
     true,
@@ -106,13 +105,12 @@ waveFunctions.push(
     '#F48024',
   ),
 );
+waveFunctions.push(
+  new WaveFunction(true, 'CV', '/static/Ryan-Hill-CV.pdf', '#C0C0C0'),
+);
 
-// Add a new wave function every 2 seconds
 setInterval(() => {
   waveFunctions.push(new WaveFunction());
-  // if (waveFunctions.filter((wf) => !wf.isLink).length < 10) {
-  //   waveFunctions.push(new WaveFunction());
-  // }
 }, 2000);
 
 const FIXED_TIME_STEP = 1000 / 60; // 60 FPS
