@@ -27,7 +27,7 @@ class FaviconConfig:  # pylint: disable=too-many-instance-attributes
 
     text: str
     font_path: Path
-    text_color: float | tuple[float, ...] | str
+    text_color: float | tuple[int, ...] | str
     background_color: float | tuple[float, ...] | str
     write_to: Path
 
@@ -43,7 +43,7 @@ class FaviconConfig:  # pylint: disable=too-many-instance-attributes
     def from_toml(cls, filepath: str | Path) -> FaviconConfig:
         """Load configuration from a TOML file or section in pyproject.toml."""
         config_file = Path(filepath)
-        config_data = {}
+        config_data: dict = {}
 
         if not config_file.exists():
             raise FileNotFoundError(f"Configuration file not found at '{config_file}'")
@@ -53,7 +53,7 @@ class FaviconConfig:  # pylint: disable=too-many-instance-attributes
                 toml_content = toml.load(f)
                 tool_data: dict = toml_content.get("tool", {})
                 rh1_data: dict = tool_data.get("rh1", {})
-                config_data: dict = rh1_data.get("favicon", {})
+                config_data.update(rh1_data.get("favicon", {}))
         except (TypeError, toml.TomlDecodeError, FileNotFoundError, IOError) as err:
             raise ConfigLoadError(f"Failed to load or parse TOML file at '{config_file}'") from err
 
@@ -118,6 +118,7 @@ def create_favicon(config: FaviconConfig) -> None:
 
 
 def main():
+    """Main function to create a favicon."""
     path_to_pyproject = Path.cwd() / "pyproject.toml"
     favicon_config = FaviconConfig.from_toml(path_to_pyproject)
     create_favicon(favicon_config)
