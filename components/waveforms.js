@@ -17,8 +17,10 @@ class WaveFunction {
     this.x = Math.random() * (canvas.width - 2 * this.radius) + this.radius;
     this.y = Math.random() * (canvas.height - 2 * this.radius) + this.radius;
     const baseSpeed = (Math.random() - 0.5) * 0.5;
-    this.speedX = isLink ? baseSpeed : baseSpeed * 2;
-    this.speedY = isLink ? baseSpeed : baseSpeed * 2;
+    const normSpeed =
+      Math.abs(baseSpeed) >= 0.05 ? baseSpeed : Math.sign(baseSpeed) * 0.05;
+    this.speedX = isLink ? normSpeed : normSpeed * 2;
+    this.speedY = isLink ? normSpeed : normSpeed * 2;
     this.alpha = 0.7;
     this.isCollapsing = false;
     this.collapseDuration = 500;
@@ -50,7 +52,16 @@ class WaveFunction {
       ctx.translate(this.x, this.y);
       ctx.scale(0.5, 0.5);
       ctx.rotate(0.01);
-      ctx.fillText(this.label, 0, 0);
+
+      const lines = this.label.split('\n');
+      if (lines.length === 1) {
+        ctx.fillText(this.label, 0, 0);
+      } else if (lines.length === 2) {
+        ctx.fillText(lines[0], 0, -15);
+        ctx.fillText(lines[1], 0, 15);
+      } else {
+        throw new Error('Too many lines in label');
+      }
       ctx.restore();
     }
 
@@ -70,10 +81,10 @@ class WaveFunction {
     this.x += this.speedX * deltaTime * 60;
     this.y += this.speedY * deltaTime * 60;
 
-    if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+    if (this.x + this.radius >= canvas.width || this.x - this.radius <= 0) {
       this.speedX = -this.speedX;
     }
-    if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
+    if (this.y + this.radius >= canvas.height || this.y - this.radius <= 0) {
       this.speedY = -this.speedY;
     }
   }
@@ -100,13 +111,13 @@ waveFunctions.push(
 waveFunctions.push(
   new WaveFunction(
     true,
-    'QCSE',
+    'Stack\nExchange',
     'https://quantumcomputing.stackexchange.com/users/13991/ryanhill1?tab=profile',
     '#F48024',
   ),
 );
 waveFunctions.push(
-  new WaveFunction(true, 'CV', '/static/Ryan-Hill-CV.pdf', '#C0C0C0'),
+  new WaveFunction(true, 'CV', '/files/Ryan-Hill-CV.pdf', '#C0C0C0'),
 );
 
 setInterval(() => {
