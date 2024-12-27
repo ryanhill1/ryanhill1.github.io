@@ -38,7 +38,7 @@ This will start a local server and automatically open your default web browser a
 
 ## Formatting Code
 
-## JavaScript, HTML, and CSS
+### JavaScript, HTML, and CSS
 
 To format all project files (HTML, CSS, JS), run:
 
@@ -52,7 +52,7 @@ To check formatting without making changes:
 npm run format:check
 ```
 
-## Python
+### Python
 
 For Python files, we use `tox` to manage formatting and linting. First, install tox:
 
