@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        npm ci
+
+    - name: Run build
+      run: npm run build
+
+    - name: Verify favicon existence
+      run: |
+        if [ ! -f build/assets/favicon.ico ]; then
+          echo "Error: build/assets/favicon.ico does not exist"
+          exit 1
+        else
+          echo "Success: build/assets/favicon.ico exists"
+        fi
