@@ -38,16 +38,38 @@ This will start a local server and automatically open your default web browser a
 
 ## Formatting Code
 
+### JavaScript, HTML, and CSS
+
 To format all project files (HTML, CSS, JS), run:
 
 ```bash
 npm run format
 ```
 
-You can also check the formatting without making changes using:
+To check formatting without making changes:
 
 ```bash
 npm run format:check
+```
+
+### Python
+
+For Python files, we use `tox` to manage formatting and linting. First, install tox:
+
+```bash
+pip install tox
+```
+
+To format Python files, run:
+
+```bash
+tox -e linters
+```
+
+To check Python formatting without making changes:
+
+```bash
+tox -e format-check
 ```
 
 ## Commit Messages
