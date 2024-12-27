@@ -9,7 +9,7 @@ function resizeCanvas() {
   canvas.height = window.innerHeight;
 }
 
-const MAX_WAVE_FUNCTIONS = 20;
+const MAX_WAVE_FUNCTIONS = 100;
 
 let waveFunctions = [];
 
@@ -58,6 +58,11 @@ class WaveFunction {
     this.url = url;
     this.color = isLink ? color : 'rgba(100, 100, 255, 1)';
     this.mass = this.radius;
+    this.isGrowing = false;
+    this.growthStartRadius = 0;
+    this.growthTargetRadius = 0;
+    this.growthStartTime = 0;
+    this.growthDuration = 500;
   }
 
   static findValidPosition(radius) {
@@ -188,22 +193,59 @@ class WaveFunction {
     this.speedY = v1n_after * normalY + v1t * tangentY;
     other.speedX = v2n_after * normalX + v2t * tangentX;
     other.speedY = v2n_after * normalY + v2t * tangentY;
+
+    const overlap = this.radius + other.radius - distance;
+    if (overlap > 0) {
+      const separationX = normalX * overlap * 0.5;
+      const separationY = normalY * overlap * 0.5;
+      this.x -= separationX;
+      this.y -= separationY;
+      other.x += separationX;
+      other.y += separationY;
+    }
+  }
+
+  startGrowth(targetRadius) {
+    this.isGrowing = true;
+    this.growthStartRadius = this.radius;
+    this.growthTargetRadius = targetRadius;
+    this.growthStartTime = Date.now();
+  }
+
+  updateGrowth() {
+    if (!this.isGrowing) return;
+
+    const elapsedTime = Date.now() - this.growthStartTime;
+    const progress = Math.min(elapsedTime / this.growthDuration, 1);
+
+    // Use easeOutQuad for smoother animation
+    const easeOutQuad = (t) => t * (2 - t);
+    const easedProgress = easeOutQuad(progress);
+
+    this.radius =
+      this.growthStartRadius +
+      (this.growthTargetRadius - this.growthStartRadius) * easedProgress;
+
+    if (progress >= 1) {
+      this.isGrowing = false;
+      this.radius = this.growthTargetRadius;
+      this.mass = this.radius;
+    }
   }
 
   combine(other) {
     const newRadius = combinedAreaRadius(this.radius, other.radius);
     const newSpeedX = (this.speedX + other.speedX) / 2;
     const newSpeedY = (this.speedY + other.speedY) / 2;
+
     if (this.mass > other.mass) {
-      this.radius = newRadius;
-      this.mass = newRadius;
+      this.startGrowth(newRadius);
       this.speedX = newSpeedX;
       this.speedY = newSpeedY;
       other.collapse();
       other.markedForRemoval = true;
     } else {
-      other.radius = newRadius;
-      other.mass = newRadius;
+      other.startGrowth(newRadius);
       other.speedX = newSpeedX;
       other.speedY = newSpeedY;
       this.collapse();
@@ -247,16 +289,50 @@ setInterval(() => {
 
 const FIXED_TIME_STEP = 1000 / 60; // 60 FPS
 let lastTime = 0;
+let frameCount = 0;
+
+function checkAndSeparateOverlaps() {
+  for (let i = 0; i < waveFunctions.length; i++) {
+    for (let j = i + 1; j < waveFunctions.length; j++) {
+      const wf1 = waveFunctions[i];
+      const wf2 = waveFunctions[j];
+      const dx = wf2.x - wf1.x;
+      const dy = wf2.y - wf1.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const overlap = wf1.radius + wf2.radius - distance;
+
+      if (overlap > 0) {
+        const separationX = (dx / distance) * overlap * 0.5;
+        const separationY = (dy / distance) * overlap * 0.5;
+        wf1.x -= separationX;
+        wf1.y -= separationY;
+        wf2.x += separationX;
+        wf2.y += separationY;
+
+        // Add a small random velocity to help separate stuck wavefunctions
+        if (!wf1.isLink) {
+          wf1.speedX += (Math.random() - 0.5) * 0.5;
+          wf1.speedY += (Math.random() - 0.5) * 0.5;
+        }
+        if (!wf2.isLink) {
+          wf2.speedX += (Math.random() - 0.5) * 0.5;
+          wf2.speedY += (Math.random() - 0.5) * 0.5;
+        }
+      }
+    }
+  }
+}
 
 function animate(currentTime) {
   requestAnimationFrame(animate);
-
   const deltaTime = (currentTime - lastTime) / 1000;
 
   if (deltaTime >= FIXED_TIME_STEP / 1000) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let i = 0; i < waveFunctions.length; i++) {
+      waveFunctions[i].updateGrowth();
+
       for (let j = i + 1; j < waveFunctions.length; j++) {
         if (waveFunctions[i].checkCollision(waveFunctions[j])) {
           if (
@@ -278,9 +354,14 @@ function animate(currentTime) {
     });
 
     waveFunctions = waveFunctions.filter((wf) => !wf.markedForRemoval);
-
     lastTime = currentTime;
   }
+
+  if (frameCount % 60 === 0) {
+    checkAndSeparateOverlaps();
+  }
+
+  frameCount++;
 }
 
 animate(0);
