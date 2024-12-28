@@ -58,6 +58,9 @@ class WaveFunction {
     this.growthTargetRadius = 0;
     this.growthStartTime = 0;
     this.growthDuration = 500;
+    this.spawnProgress = 0;
+    this.spawnDuration = 500;
+    this.spawnStartTime = Date.now();
   }
 
   setPosition() {
@@ -120,47 +123,63 @@ class WaveFunction {
   draw() {
     ctx.save();
     ctx.beginPath();
-    ctx.globalAlpha = this.alpha;
+    ctx.globalAlpha = this.alpha * (this.spawnProgress / 100);
     ctx.fillStyle = this.color;
     ctx.shadowColor = this.color;
-    ctx.shadowBlur = 15 * this.alpha;
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.shadowBlur = 15 * this.alpha * (this.spawnProgress / 100);
+
+    const scaleFactor = this.spawnProgress / 100;
+    const drawRadius = this.radius * scaleFactor;
+
+    ctx.arc(this.x, this.y, drawRadius, 0, Math.PI * 2);
     ctx.fill();
 
     if (this.isLink) {
-      this.drawLabel();
+      this.drawLabel(scaleFactor);
     }
 
     ctx.restore();
   }
 
-  drawLabel() {
+  drawLabel(scaleFactor) {
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 32px Arial';
+    ctx.font = `bold ${32 * scaleFactor}px Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.save();
     ctx.translate(this.x, this.y);
-    ctx.scale(0.5, 0.5);
+    ctx.scale(0.5 * scaleFactor, 0.5 * scaleFactor);
     ctx.rotate(0.01);
-
     const lines = this.label.split('\n');
     if (lines.length === 1) {
       ctx.fillText(this.label, 0, 0);
     } else if (lines.length === 2) {
       ctx.fillText(lines[0], 0, -15);
       ctx.fillText(lines[1], 0, 15);
-    } else {
-      throw new Error('Too many lines in label');
     }
     ctx.restore();
   }
 
   update(deltaTime) {
+    if (this.spawnProgress < 100) {
+      const elapsed = Date.now() - this.spawnStartTime;
+      this.spawnProgress = Math.min(100, (elapsed / this.spawnDuration) * 100);
+
+      // Easing function for smooth pop-up effect
+      const easeOutBack = (t) => {
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+      };
+
+      this.spawnProgress = easeOutBack(this.spawnProgress / 100) * 100;
+    }
+
     if (this.isCollapsing) {
       this.updateCollapse();
     } else {
       this.updatePosition(deltaTime);
+      this.ensureInsideCanvas();
     }
     this.updateGrowth();
   }
@@ -179,12 +198,35 @@ class WaveFunction {
     this.bounceOffWalls();
   }
 
+  ensureInsideCanvas() {
+    const margin = 1;
+    this.x = Math.max(
+      this.radius + margin,
+      Math.min(canvas.width - this.radius - margin, this.x),
+    );
+    this.y = Math.max(
+      this.radius + margin,
+      Math.min(canvas.height - this.radius - margin, this.y),
+    );
+  }
+
   bounceOffWalls() {
-    if (this.x + this.radius >= canvas.width || this.x - this.radius <= 0) {
-      this.speedX = -this.speedX;
+    const margin = 1; // Small margin to ensure the wavefunction stays inside
+
+    if (this.x + this.radius >= canvas.width - margin) {
+      this.x = canvas.width - this.radius - margin;
+      this.speedX = -Math.abs(this.speedX);
+    } else if (this.x - this.radius <= margin) {
+      this.x = this.radius + margin;
+      this.speedX = Math.abs(this.speedX);
     }
-    if (this.y + this.radius >= canvas.height || this.y - this.radius <= 0) {
-      this.speedY = -this.speedY;
+
+    if (this.y + this.radius >= canvas.height - margin) {
+      this.y = canvas.height - this.radius - margin;
+      this.speedY = -Math.abs(this.speedY);
+    } else if (this.y - this.radius <= margin) {
+      this.y = this.radius + margin;
+      this.speedY = Math.abs(this.speedY);
     }
   }
 
@@ -197,8 +239,8 @@ class WaveFunction {
 
   checkCollision(other) {
     return (
-      Math.hypot(this.x - other.x, this.y - other.y) <
-      this.radius + other.radius
+      Math.hypot(this.x - other.x, this.y - other.y) <=
+      this.radius + other.radius - 1
     );
   }
 
@@ -241,8 +283,8 @@ class WaveFunction {
   separateOverlap(other, normalX, normalY, distance) {
     const overlap = this.radius + other.radius - distance;
     if (overlap > 0) {
-      const separationX = normalX * overlap * 0.5;
-      const separationY = normalY * overlap * 0.5;
+      const separationX = normalX * overlap * 0.51;
+      const separationY = normalY * overlap * 0.51;
       this.x -= separationX;
       this.y -= separationY;
       other.x += separationX;
@@ -345,7 +387,7 @@ function animate(currentTime) {
     waveFunctions = waveFunctions.filter((wf) => !wf.markedForRemoval);
     lastTime = currentTime;
   }
-  if (frameCount % 60 === 0) {
+  if (frameCount % 10 === 0) {
     checkAndSeparateOverlaps();
   }
   frameCount++;
