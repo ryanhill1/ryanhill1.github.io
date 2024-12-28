@@ -62,16 +62,16 @@ class WaveFunction {
 
   setPosition() {
     let position = null;
+    const initialRadius = this.radius;
     for (let i = 1; i <= 5; i++) {
-      position = WaveFunction.findValidPosition(this.radius);
+      position = this.findValidPosition();
       if (position) break;
-      this.radius = this.radius / (i + 1);
+      this.radius = initialRadius / (i + 1);
     }
     if (position) {
       this.x = position.x;
       this.y = position.y;
     } else {
-      this.radius = this.radius / 5;
       this.x = Math.random() * (canvas.width - 2 * this.radius) + this.radius;
       this.y = Math.random() * (canvas.height - 2 * this.radius) + this.radius;
     }
@@ -85,10 +85,27 @@ class WaveFunction {
     this.speedY = this.isLink ? normSpeed : normSpeed * 2;
   }
 
-  static findValidPosition(radius) {
+  findValidPosition() {
+    const radius = this.radius;
+    const width = canvas.width;
+    const height = canvas.height;
+    const centerX = width / 2;
+    const centerY = height / 2;
+
     for (let i = 0; i < 100; i++) {
-      const x = Math.random() * (canvas.width - 2 * radius) + radius;
-      const y = Math.random() * (canvas.height - 2 * radius) + radius;
+      let x, y;
+
+      if (this.isLink) {
+        // Generate coordinates within a circle around the center
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = Math.random() * (width / 4 - radius) + radius;
+        x = centerX + distance * Math.cos(angle);
+        y = centerY + distance * Math.sin(angle);
+      } else {
+        x = Math.random() * (width - 2 * radius) + radius;
+        y = Math.random() * (height - 2 * radius) + radius;
+      }
+
       if (
         waveFunctions.every(
           (wf) => Math.hypot(x - wf.x, y - wf.y) >= radius + wf.radius,

@@ -1,6 +1,6 @@
 # ryanhill1.github.io
 
-Welcome to my personal website project. For local development, follow the instructions below.
+Welcome to my personal website project. To run locally, follow the instructions below.
 
 ## Prerequisites
 
