@@ -1,7 +1,9 @@
+// DOM elements
 const collapseAllButton = document.getElementById('collapseAllButton');
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Constants
 const MAX_WAVE_FUNCTIONS = 100;
 const FIXED_TIME_STEP = 1000 / 60; // 60 FPS
 const LINK_DATA = [
@@ -10,24 +12,35 @@ const LINK_DATA = [
     link: 'https://www.linkedin.com/in/ryan-james-hill/',
     color: '#0077B5',
   },
-  { name: 'GitHub', link: 'https://github.com/ryanhill1', color: '#171515' },
+  {
+    name: 'GitHub',
+    link: 'https://github.com/ryanhill1',
+    color: '#171515',
+  },
   {
     name: 'Stack\nExchange',
     link: 'https://quantumcomputing.stackexchange.com/users/13991/ryanhill1?tab=profile',
     color: '#F48024',
   },
-  { name: 'CV', link: '/files/Ryan-Hill-CV.pdf', color: '#C0C0C0' },
+  {
+    name: 'CV',
+    link: '/files/Ryan-Hill-CV.pdf',
+    color: '#C0C0C0',
+  },
 ];
 
+// State
 let waveFunctions = [];
 let lastTime = 0;
 let frameCount = 0;
 
+// Canvas sizing
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
 
+// Utility functions
 function combinedAreaRadius(radius1, radius2) {
   const combinedArea = Math.PI * (radius1 * radius1 + radius2 * radius2);
   return Math.sqrt(combinedArea / Math.PI);
@@ -43,17 +56,23 @@ class WaveFunction {
   }
 
   initializeProperties() {
-    const initialRadius = this.isLink ? 50 : 20 + Math.random() * 30;
-    this.radius = initialRadius;
+    // Core properties
+    this.radius = this.isLink ? 50 : 20 + Math.random() * 30;
+    this.mass = this.radius;
+    this.alpha = 0.7;
+
+    // Position and movement
     this.setPosition();
     this.setSpeed();
-    this.alpha = 0.7;
+
+    // State flags
     this.isCollapsing = false;
+    this.markedForRemoval = false;
+    this.isGrowing = false;
+
+    // Animation properties
     this.collapseDuration = 500;
     this.collapseStartTime = null;
-    this.markedForRemoval = false;
-    this.mass = this.radius;
-    this.isGrowing = false;
     this.growthStartRadius = 0;
     this.growthTargetRadius = 0;
     this.growthStartTime = 0;
@@ -66,15 +85,18 @@ class WaveFunction {
   setPosition() {
     let position = null;
     const initialRadius = this.radius;
+
+    // Try to find valid position with decreasing radius
     for (let i = 1; i <= 5; i++) {
       position = this.findValidPosition();
       if (position) break;
       this.radius = initialRadius / (i + 1);
     }
+
     if (position) {
-      this.x = position.x;
-      this.y = position.y;
+      [this.x, this.y] = [position.x, position.y];
     } else {
+      // Fallback position if no valid spot found
       this.x = Math.random() * (canvas.width - 2 * this.radius) + this.radius;
       this.y = Math.random() * (canvas.height - 2 * this.radius) + this.radius;
     }
@@ -84,61 +106,63 @@ class WaveFunction {
     const baseSpeed = (Math.random() - 0.5) * 0.5;
     const normSpeed =
       Math.abs(baseSpeed) >= 0.05 ? baseSpeed : Math.sign(baseSpeed) * 0.05;
-    this.speedX = this.isLink ? normSpeed : normSpeed * 2;
-    this.speedY = this.isLink ? normSpeed : normSpeed * 2;
+    const speedMultiplier = this.isLink ? 1 : 2;
+
+    this.speedX = normSpeed * speedMultiplier;
+    this.speedY = normSpeed * speedMultiplier;
   }
 
   findValidPosition() {
-    const radius = this.radius;
-    const width = canvas.width;
-    const height = canvas.height;
-    const centerX = width / 2;
-    const centerY = height / 2;
+    const { radius } = this;
+    const { width, height } = canvas;
+    const [centerX, centerY] = [width / 2, height / 2];
 
     for (let i = 0; i < 100; i++) {
       let x, y;
 
       if (this.isLink) {
-        // Generate coordinates within a circle around the center
+        // Position links in circle around center
         const angle = Math.random() * 2 * Math.PI;
         const distance = Math.random() * (width / 4 - radius) + radius;
         x = centerX + distance * Math.cos(angle);
         y = centerY + distance * Math.sin(angle);
       } else {
+        // Random position for non-links
         x = Math.random() * (width - 2 * radius) + radius;
         y = Math.random() * (height - 2 * radius) + radius;
       }
 
-      if (
-        waveFunctions.every(
-          (wf) => Math.hypot(x - wf.x, y - wf.y) >= radius + wf.radius,
-        )
-      ) {
-        return { x, y };
-      }
+      // Check if position is valid
+      const noOverlap = waveFunctions.every(
+        (wf) => Math.hypot(x - wf.x, y - wf.y) >= radius + wf.radius,
+      );
+
+      if (noOverlap) return { x, y };
     }
     return null;
   }
 
   draw() {
     ctx.save();
-    ctx.beginPath();
-    ctx.globalAlpha = this.alpha * (this.spawnProgress / 100);
-    ctx.fillStyle = this.color;
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 15 * this.alpha * (this.spawnProgress / 100);
+    this.drawCircle();
+    if (this.isLink) {
+      this.drawLabel(this.spawnProgress / 100);
+    }
+    ctx.restore();
+  }
 
+  drawCircle() {
+    const alpha = this.alpha * (this.spawnProgress / 100);
     const scaleFactor = this.spawnProgress / 100;
     const drawRadius = this.radius * scaleFactor;
 
+    ctx.beginPath();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = this.color;
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = 15 * alpha;
     ctx.arc(this.x, this.y, drawRadius, 0, Math.PI * 2);
     ctx.fill();
-
-    if (this.isLink) {
-      this.drawLabel(scaleFactor);
-    }
-
-    ctx.restore();
   }
 
   drawLabel(scaleFactor) {
@@ -146,14 +170,16 @@ class WaveFunction {
     ctx.font = `bold ${32 * scaleFactor}px Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.scale(0.5 * scaleFactor, 0.5 * scaleFactor);
     ctx.rotate(0.01);
+
     const lines = this.label.split('\n');
     if (lines.length === 1) {
       ctx.fillText(this.label, 0, 0);
-    } else if (lines.length === 2) {
+    } else {
       ctx.fillText(lines[0], 0, -15);
       ctx.fillText(lines[1], 0, 15);
     }
@@ -161,19 +187,7 @@ class WaveFunction {
   }
 
   update(deltaTime) {
-    if (this.spawnProgress < 100) {
-      const elapsed = Date.now() - this.spawnStartTime;
-      this.spawnProgress = Math.min(100, (elapsed / this.spawnDuration) * 100);
-
-      // Easing function for smooth pop-up effect
-      const easeOutBack = (t) => {
-        const c1 = 1.70158;
-        const c3 = c1 + 1;
-        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
-      };
-
-      this.spawnProgress = easeOutBack(this.spawnProgress / 100) * 100;
-    }
+    this.updateSpawnAnimation();
 
     if (this.isCollapsing) {
       this.updateCollapse();
@@ -181,7 +195,24 @@ class WaveFunction {
       this.updatePosition(deltaTime);
       this.ensureInsideCanvas();
     }
+
     this.updateGrowth();
+  }
+
+  updateSpawnAnimation() {
+    if (this.spawnProgress >= 100) return;
+
+    const elapsed = Date.now() - this.spawnStartTime;
+    const progress = Math.min(100, (elapsed / this.spawnDuration) * 100);
+
+    // Smooth pop-up effect
+    const easeOutBack = (t) => {
+      const c1 = 1.70158;
+      const c3 = c1 + 1;
+      return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+    };
+
+    this.spawnProgress = easeOutBack(progress / 100) * 100;
   }
 
   updateCollapse() {
@@ -200,18 +231,17 @@ class WaveFunction {
 
   ensureInsideCanvas() {
     const margin = 1;
-    this.x = Math.max(
-      this.radius + margin,
-      Math.min(canvas.width - this.radius - margin, this.x),
-    );
-    this.y = Math.max(
-      this.radius + margin,
-      Math.min(canvas.height - this.radius - margin, this.y),
-    );
+    const minX = this.radius + margin;
+    const maxX = canvas.width - this.radius - margin;
+    const minY = this.radius + margin;
+    const maxY = canvas.height - this.radius - margin;
+
+    this.x = Math.max(minX, Math.min(maxX, this.x));
+    this.y = Math.max(minY, Math.min(maxY, this.y));
   }
 
   bounceOffWalls() {
-    const margin = 1; // Small margin to ensure the wavefunction stays inside
+    const margin = 1;
 
     if (this.x + this.radius >= canvas.width - margin) {
       this.x = canvas.width - this.radius - margin;
@@ -250,8 +280,11 @@ class WaveFunction {
     const distance = Math.hypot(dx, dy);
     if (distance === 0) return;
 
+    // Calculate collision vectors
     const [normalX, normalY] = [dx / distance, dy / distance];
     const [tangentX, tangentY] = [-normalY, normalX];
+
+    // Calculate velocities along normal and tangent
     const [v1n, v1t] = [
       this.speedX * normalX + this.speedY * normalY,
       this.speedX * tangentX + this.speedY * tangentY,
@@ -261,6 +294,7 @@ class WaveFunction {
       other.speedX * tangentX + other.speedY * tangentY,
     ];
 
+    // Calculate new normal velocities
     const v1n_after =
       (v1n * (this.mass - other.mass) + 2 * other.mass * v2n) /
       (this.mass + other.mass);
@@ -268,6 +302,7 @@ class WaveFunction {
       (v2n * (other.mass - this.mass) + 2 * this.mass * v1n) /
       (this.mass + other.mass);
 
+    // Update velocities
     [this.speedX, this.speedY] = [
       v1n_after * normalX + v1t * tangentX,
       v1n_after * normalY + v1t * tangentY,
@@ -301,15 +336,18 @@ class WaveFunction {
 
   updateGrowth() {
     if (!this.isGrowing) return;
+
     const progress = Math.min(
       (Date.now() - this.growthStartTime) / this.growthDuration,
       1,
     );
+
     const easeOutQuad = (t) => t * (2 - t);
     this.radius =
       this.growthStartRadius +
       (this.growthTargetRadius - this.growthStartRadius) *
         easeOutQuad(progress);
+
     if (progress >= 1) {
       this.isGrowing = false;
       this.radius = this.growthTargetRadius;
@@ -323,6 +361,7 @@ class WaveFunction {
       (this.speedX + other.speedX) / 2,
       (this.speedY + other.speedY) / 2,
     ];
+
     if (this.mass > other.mass) {
       this.startGrowth(newRadius);
       [this.speedX, this.speedY] = [newSpeedX, newSpeedY];
@@ -337,6 +376,7 @@ class WaveFunction {
   }
 }
 
+// Game initialization and loop
 function initializeWaveFunctions() {
   LINK_DATA.forEach(({ name, link, color }) => {
     waveFunctions.push(new WaveFunction(true, name, link, color));
@@ -356,15 +396,20 @@ function checkAndSeparateOverlaps() {
       const [dx, dy] = [wf2.x - wf1.x, wf2.y - wf1.y];
       const distance = Math.hypot(dx, dy);
       const overlap = wf1.radius + wf2.radius - distance;
+
       if (overlap > 0) {
+        // Separate overlapping wave functions
         const [separationX, separationY] = [
           (dx / distance) * overlap * 0.5,
           (dy / distance) * overlap * 0.5,
         ];
+
         wf1.x -= separationX;
         wf1.y -= separationY;
         wf2.x += separationX;
         wf2.y += separationY;
+
+        // Add random movement for non-link wave functions
         if (!wf1.isLink) {
           wf1.speedX += (Math.random() - 0.5) * 0.5;
           wf1.speedY += (Math.random() - 0.5) * 0.5;
@@ -381,12 +426,14 @@ function checkAndSeparateOverlaps() {
 function animate(currentTime) {
   requestAnimationFrame(animate);
   const deltaTime = (currentTime - lastTime) / 1000;
+
   if (deltaTime >= FIXED_TIME_STEP / 1000) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     updateWaveFunctions(deltaTime);
     waveFunctions = waveFunctions.filter((wf) => !wf.markedForRemoval);
     lastTime = currentTime;
   }
+
   if (frameCount % 10 === 0) {
     checkAndSeparateOverlaps();
   }
@@ -395,24 +442,31 @@ function animate(currentTime) {
 
 function updateWaveFunctions(deltaTime) {
   for (let i = 0; i < waveFunctions.length; i++) {
-    waveFunctions[i].update(deltaTime);
+    const wf1 = waveFunctions[i];
+    wf1.update(deltaTime);
+
+    // Check collisions with other wave functions
     for (let j = i + 1; j < waveFunctions.length; j++) {
-      if (waveFunctions[i].checkCollision(waveFunctions[j])) {
-        if (
-          !waveFunctions[i].isLink &&
-          !waveFunctions[j].isLink &&
-          (waveFunctions.length >= MAX_WAVE_FUNCTIONS || Math.random() < 0.05)
-        ) {
-          waveFunctions[i].combine(waveFunctions[j]);
+      const wf2 = waveFunctions[j];
+      if (wf1.checkCollision(wf2)) {
+        const shouldCombine =
+          !wf1.isLink &&
+          !wf2.isLink &&
+          (waveFunctions.length >= MAX_WAVE_FUNCTIONS || Math.random() < 0.05);
+
+        if (shouldCombine) {
+          wf1.combine(wf2);
         } else {
-          waveFunctions[i].resolveCollision(waveFunctions[j]);
+          wf1.resolveCollision(wf2);
         }
       }
     }
-    waveFunctions[i].draw();
+
+    wf1.draw();
   }
 }
 
+// Event handlers
 function handleCanvasClick(event) {
   const rect = canvas.getBoundingClientRect();
   const clickX = event.clientX - rect.left;
@@ -435,11 +489,10 @@ function handleCanvasClick(event) {
 }
 
 function handleCollapseAll() {
-  waveFunctions.forEach((wf) => {
-    wf.collapse();
-  });
+  waveFunctions.forEach((wf) => wf.collapse());
 }
 
+// Initialization
 function init() {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
