@@ -6,28 +6,6 @@ const ctx = canvas.getContext('2d');
 // Constants
 const MAX_WAVE_FUNCTIONS = 100;
 const FIXED_TIME_STEP = 1000 / 60; // 60 FPS
-const LINK_DATA = [
-  {
-    name: 'LinkedIn',
-    link: 'https://www.linkedin.com/in/ryan-james-hill/',
-    color: '#0077B5',
-  },
-  {
-    name: 'GitHub',
-    link: 'https://github.com/ryanhill1',
-    color: '#171515',
-  },
-  {
-    name: 'Stack\nExchange',
-    link: 'https://quantumcomputing.stackexchange.com/users/13991/ryanhill1?tab=profile',
-    color: '#F48024',
-  },
-  {
-    name: 'CV',
-    link: '/files/Ryan-Hill-CV.pdf',
-    color: '#C0C0C0',
-  },
-];
 
 // State
 let waveFunctions = [];
@@ -377,10 +355,17 @@ class WaveFunction {
 }
 
 // Game initialization and loop
-function initializeWaveFunctions() {
-  LINK_DATA.forEach(({ name, link, color }) => {
-    waveFunctions.push(new WaveFunction(true, name, link, color));
-  });
+async function initializeWaveFunctions() {
+  try {
+    const response = await fetch('components/data/links.yaml');
+    const yamlText = await response.text();
+    const data = jsyaml.load(yamlText);
+    data.links.forEach(({ name, link, color }) => {
+      waveFunctions.push(new WaveFunction(true, name, link, color));
+    });
+  } catch (error) {
+    console.error('Error loading link data:', error);
+  }
 }
 
 function addNewWaveFunction() {
@@ -483,7 +468,7 @@ function handleCanvasClick(event) {
     }
   }
 
-  if (waveFunctions.length <= LINK_DATA.length + 1) {
+  if (waveFunctions.length <= MAX_WAVE_FUNCTIONS) {
     waveFunctions.push(new WaveFunction());
   }
 }
@@ -493,12 +478,12 @@ function handleCollapseAll() {
 }
 
 // Initialization
-function init() {
+async function init() {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
   canvas.addEventListener('click', handleCanvasClick);
   collapseAllButton.addEventListener('click', handleCollapseAll);
-  initializeWaveFunctions();
+  await initializeWaveFunctions();
   setInterval(addNewWaveFunction, 2000);
   animate(0);
 }

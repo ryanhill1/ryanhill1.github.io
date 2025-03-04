@@ -1,0 +1,18 @@
+links:
+  - name: LinkedIn
+    link: https://www.linkedin.com/in/ryan-james-hill/
+    color: "#0077B5"
+
+  - name: GitHub
+    link: https://github.com/ryanhill1
+    color: "#171515"
+
+  - name: |
+      Stack
+      Exchange
+    link: https://quantumcomputing.stackexchange.com/users/13991/ryanhill1?tab=profile
+    color: "#F48024"
+
+  - name: CV
+    link: /files/Ryan-Hill-CV.pdf
+    color: "#C0C0C0"
