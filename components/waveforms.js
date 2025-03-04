@@ -11,6 +11,7 @@ const FIXED_TIME_STEP = 1000 / 60; // 60 FPS
 let waveFunctions = [];
 let lastTime = 0;
 let frameCount = 0;
+let linkDataLength = 0;
 
 // Canvas sizing
 function resizeCanvas() {
@@ -360,6 +361,7 @@ async function initializeWaveFunctions() {
     const response = await fetch('components/data/links.yaml');
     const yamlText = await response.text();
     const data = jsyaml.load(yamlText);
+    linkDataLength = data.links.length;
     data.links.forEach(({ name, link, color }) => {
       waveFunctions.push(new WaveFunction(true, name, link, color));
     });
@@ -369,7 +371,7 @@ async function initializeWaveFunctions() {
 }
 
 function addNewWaveFunction() {
-  if (waveFunctions.length <= MAX_WAVE_FUNCTIONS) {
+  if (waveFunctions.length < MAX_WAVE_FUNCTIONS) {
     waveFunctions.push(new WaveFunction());
   }
 }
@@ -468,7 +470,7 @@ function handleCanvasClick(event) {
     }
   }
 
-  if (waveFunctions.length <= MAX_WAVE_FUNCTIONS) {
+  if (waveFunctions.length <= linkDataLength + 1) {
     waveFunctions.push(new WaveFunction());
   }
 }
