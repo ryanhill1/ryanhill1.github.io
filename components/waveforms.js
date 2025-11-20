@@ -39,23 +39,23 @@ function resizeCanvas() {
   if (!canvas || !ctx) return;
   const width = Math.max(1, window.innerWidth);
   const height = Math.max(1, window.innerHeight);
-  
+
   // Get device pixel ratio for crisp rendering on high-DPI displays
   const dpr = window.devicePixelRatio || 1;
-  
+
   // Set actual size in memory (scaled for device pixel ratio)
   canvas.width = width * dpr;
   canvas.height = height * dpr;
-  
+
   // Scale the canvas back down using CSS
   canvas.style.width = width + 'px';
   canvas.style.height = height + 'px';
-  
+
   // Reset transform and scale the drawing context
   // This allows us to draw in logical pixels but render at high DPI
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.scale(dpr, dpr);
-  
+
   // Enable crisp rendering settings
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
@@ -67,7 +67,13 @@ function combinedAreaRadius(radius1, radius2) {
 }
 
 class WaveFunction {
-  constructor(isLink = false, label = '', url = '', color = '', darkColor = null) {
+  constructor(
+    isLink = false,
+    label = '',
+    url = '',
+    color = '',
+    darkColor = null,
+  ) {
     this.isLink = isLink;
     this.label = label;
     this.url = url;
@@ -110,8 +116,10 @@ class WaveFunction {
       this.x = position.x;
       this.y = position.y;
     } else {
-      this.x = Math.random() * (window.innerWidth - 2 * this.radius) + this.radius;
-      this.y = Math.random() * (window.innerHeight - 2 * this.radius) + this.radius;
+      this.x =
+        Math.random() * (window.innerWidth - 2 * this.radius) + this.radius;
+      this.y =
+        Math.random() * (window.innerHeight - 2 * this.radius) + this.radius;
     }
   }
 
@@ -168,15 +176,15 @@ class WaveFunction {
   draw() {
     if (!ctx) return;
     ctx.save();
-    
+
     const scaleFactor = this.spawnProgress / 100;
     const drawRadius = this.radius * scaleFactor;
     const alpha = this.alpha * scaleFactor;
-    
+
     // Modern crisp rendering - no blur, clean edges
     ctx.globalAlpha = alpha;
     ctx.fillStyle = this.color;
-    
+
     // Crisp circle with no shadow blur
     ctx.beginPath();
     ctx.arc(this.x, this.y, drawRadius, 0, Math.PI * 2);
@@ -514,6 +522,29 @@ function updateWaveFunctions(deltaTime) {
   }
 }
 
+function handleCanvasHover(event) {
+  if (!canvas) {
+    canvas.style.cursor = 'default';
+    return;
+  }
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+
+  // Check if mouse is over any bubble
+  for (let wf of waveFunctions) {
+    // Account for spawn progress in hover detection
+    const effectiveRadius = wf.radius * (wf.spawnProgress / 100);
+    if (Math.hypot(wf.x - mouseX, wf.y - mouseY) < effectiveRadius) {
+      canvas.style.cursor = 'pointer';
+      return;
+    }
+  }
+  
+  // Not over any bubble, reset to default cursor
+  canvas.style.cursor = 'default';
+}
+
 function handleCanvasClick(event) {
   if (!canvas) return;
   const rect = canvas.getBoundingClientRect();
@@ -550,12 +581,11 @@ function handleCollapseAll() {
 
 // Test function: Create two bubbles on a collision course
 function createCollisionTest() {
-  // Clear existing non-link wave functions
-  waveFunctions = waveFunctions.filter((wf) => wf.isLink);
-
+  // Don't clear existing bubbles, just add test bubbles
   const centerY = window.innerHeight / 2;
   const radius = 40;
   const margin = 100; // Distance from edge of canvas
+  const testColor = 'rgba(255, 100, 100, 1)'; // Red color for both bubbles
 
   // Create first bubble on the left side, moving right
   const wf1 = new WaveFunction();
@@ -565,7 +595,7 @@ function createCollisionTest() {
   wf1.mass = radius;
   wf1.speedX = 2; // Moderate speed for visible collision
   wf1.speedY = 0;
-  wf1.color = 'rgba(255, 100, 100, 1)'; // Red
+  wf1.color = testColor; // Red
   wf1.spawnProgress = 100; // Fully spawned
   waveFunctions.push(wf1);
 
@@ -577,7 +607,7 @@ function createCollisionTest() {
   wf2.mass = radius;
   wf2.speedX = -2; // Moderate speed for visible collision
   wf2.speedY = 0;
-  wf2.color = 'rgba(100, 100, 255, 1)'; // Blue
+  wf2.color = testColor; // Same red color
   wf2.spawnProgress = 100; // Fully spawned
   waveFunctions.push(wf2);
 
@@ -599,7 +629,7 @@ function initTheme() {
   // Load saved theme preference or default to light
   const savedTheme = localStorage.getItem('theme') || 'light';
   const isDark = savedTheme === 'dark';
-  
+
   // Apply theme
   if (isDark) {
     document.body.classList.add('dark-theme');
@@ -608,14 +638,14 @@ function initTheme() {
     document.body.classList.remove('dark-theme');
     themeToggleButton.textContent = '🌙';
   }
-  
+
   // Update bubble colors based on initial theme
   updateBubbleColors(isDark);
 
   // Toggle theme on button click
   themeToggleButton.addEventListener('click', () => {
     const isCurrentlyDark = document.body.classList.contains('dark-theme');
-    
+
     if (isCurrentlyDark) {
       document.body.classList.remove('dark-theme');
       themeToggleButton.textContent = '🌙';
@@ -638,6 +668,10 @@ function init() {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
   canvas.addEventListener('click', handleCanvasClick);
+  canvas.addEventListener('mousemove', handleCanvasHover);
+  canvas.addEventListener('mouseleave', () => {
+    if (canvas) canvas.style.cursor = 'default';
+  });
   if (collapseAllButton) {
     collapseAllButton.addEventListener('click', handleCollapseAll);
   }
