@@ -540,7 +540,7 @@ function handleCanvasHover(event) {
       return;
     }
   }
-  
+
   // Not over any bubble, reset to default cursor
   canvas.style.cursor = 'default';
 }
