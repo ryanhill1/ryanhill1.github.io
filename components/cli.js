@@ -217,7 +217,7 @@ const commands = {
   sudo [command]    - Run as superuser (disabled)
   chmod [mode] [file] - Change permissions (disabled)
   chown [owner] [file] - Change ownership (disabled)
-  apt / yum / brew  - Package managers (disabled)
+  apt / yum / brew / pip - Package managers (disabled)
   git [command]     - Version control
   exit              - Return to home page`;
   },
@@ -947,6 +947,101 @@ This is a portfolio site - Homebrew is disabled!`;
     return `This is a portfolio site - Homebrew is disabled!`;
   },
 
+  pip: (args) => {
+    if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
+      return `Usage:
+  pip <command> [options]
+
+Commands:
+  install                     Install packages.
+  download                    Download packages.
+  uninstall                   Uninstall packages.
+  freeze                      Output installed packages in requirements format.
+  list                        List installed packages.
+  show                        Show information about installed packages.
+  search                      Search PyPI for packages.
+  check                       Verify installed packages have compatible dependencies.
+
+This is a portfolio site - pip is not available!
+(But nice try! 🐍)`;
+    }
+
+    const command = args[0];
+    
+    if (command === 'install') {
+      const packageName = args[1] || 'package';
+      return `Collecting ${packageName}
+  Downloading ${packageName}-1.0.0-py3-none-any.whl
+Installing collected packages: ${packageName}
+Successfully installed ${packageName}-1.0.0
+
+(Just kidding! This is a portfolio site - pip install is disabled for security reasons.)`;
+    }
+    
+    if (command === 'uninstall') {
+      const packageName = args[1] || 'package';
+      return `Found existing installation: ${packageName} 1.0.0
+Uninstalling ${packageName}-1.0.0:
+  Successfully uninstalled ${packageName}-1.0.0
+
+(Just kidding! This is a portfolio site - pip uninstall is disabled.)`;
+    }
+    
+    if (command === 'list') {
+      return `Package    Version
+---------- -------
+pip        23.0.1
+setuptools 65.5.0
+wheel      0.38.4
+
+(This is a mock list - pip is not actually available on this portfolio site!)`;
+    }
+    
+    if (command === 'freeze') {
+      return `pip==23.0.1
+setuptools==65.5.0
+wheel==0.38.4
+
+(This is a mock output - pip is not actually available on this portfolio site!)`;
+    }
+    
+    if (command === 'show') {
+      const packageName = args[1] || 'pip';
+      return `Name: ${packageName}
+Version: 1.0.0
+Summary: A mock package (this is a portfolio site)
+Location: /usr/local/lib/python3.11/site-packages
+Requires:
+
+(This is a mock output - pip is not actually available on this portfolio site!)`;
+    }
+    
+    if (command === 'search') {
+      const query = args[1] || 'package';
+      return `Searching for "${query}" on PyPI...
+No packages found matching "${query}".
+
+(This is a portfolio site - pip search is disabled!)`;
+    }
+    
+    if (command === 'check') {
+      return `No broken requirements found.
+
+(This is a portfolio site - pip check is disabled!)`;
+    }
+    
+    if (command === '--version' || command === '-V') {
+      return `pip 23.0.1 from /usr/local/lib/python3.11/site-packages/pip (python 3.11)
+
+(This is a mock version - pip is not actually available on this portfolio site!)`;
+    }
+    
+    return `pip: unknown command "${command}"
+Type 'pip --help' for usage.
+
+This is a portfolio site - pip is not available!`;
+  },
+
   git: (args) => {
     if (args.length === 0) {
       return 'usage: git [--version] [--help] [-C <path>] [-c name=value]\n           [--exec-path[=<path>] [--html-path] [--man-path] [--info-path]\n           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n           [--git-dir=<path>] [--work-tree=<path>] <command> [<args>]';
@@ -1386,7 +1481,130 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
   },
 };
 
-// Mock LLM-like response generator
+// Vector DB-based response generator
+async function handleQuestion(input) {
+  // Show thinking indicator
+  const thinkingLine = addLine('<span class="output info">Searching knowledge base...</span>');
+  
+  try {
+    // Check if vector DB is available
+    if (typeof window.vectorDB === 'undefined') {
+      // Fallback to mock response if vector DB not loaded
+      thinkingLine.remove();
+      const response = generateMockResponse(input);
+      addLine(`<span class="output info">${response}</span>`);
+      return;
+    }
+    
+    // Search vector database
+    const results = await window.vectorDB.search(input, {
+      threshold: 0.5, // Higher threshold for better precision
+      maxResults: 2, // Limit to top 2 most relevant chunks
+    });
+    
+    thinkingLine.remove();
+    
+    if (results.length === 0) {
+      // No relevant results found
+      const response = generateMockResponse(input);
+      addLine(`<span class="output info">${response}</span>`);
+      return;
+    }
+    
+    // Build response from retrieved context
+    const context = results
+      .map((r, i) => `${i + 1}. ${r.text}`)
+      .join('\n\n');
+    
+    // Generate response (for now, just show the context)
+    // In production, you'd send this to an LLM API for better responses
+    const response = formatVectorResponse(input, results);
+    addLine(`<span class="output info">${response}</span>`);
+    
+  } catch (error) {
+    console.error('Vector search error:', error);
+    thinkingLine.remove();
+    const response = generateMockResponse(input);
+    addLine(`<span class="output info">${response}</span>`);
+  }
+}
+
+// Format response from vector search results
+function formatVectorResponse(query, results) {
+  if (results.length === 0) {
+    return generateMockResponse(query);
+  }
+  
+  // Use only the top result for focused answers
+  const topResult = results[0];
+  
+  // If similarity is very high, use that chunk directly
+  // Otherwise, try to extract a more focused answer
+  let response = '';
+  
+  if (topResult.similarity > 0.65) {
+    // High confidence - use the most relevant chunk
+    response = topResult.text;
+    
+    // If the chunk is very long, try to extract the most relevant sentence
+    if (response.length > 500) {
+      const sentences = response.split(/[.!?]+/).filter(s => s.trim().length > 0);
+      const queryWords = query.toLowerCase().split(/\s+/);
+      
+      // Find sentence with most query word matches
+      let bestSentence = sentences[0];
+      let maxMatches = 0;
+      
+      for (const sentence of sentences) {
+        const sentenceLower = sentence.toLowerCase();
+        const matches = queryWords.filter(word => sentenceLower.includes(word)).length;
+        if (matches > maxMatches) {
+          maxMatches = matches;
+          bestSentence = sentence.trim();
+        }
+      }
+      
+      // Use best sentence plus some context
+      if (bestSentence.length > 50) {
+        response = bestSentence + '.';
+        // Add next sentence if it's short
+        const bestIndex = sentences.findIndex(s => s.trim() === bestSentence);
+        if (bestIndex >= 0 && bestIndex < sentences.length - 1) {
+          const nextSentence = sentences[bestIndex + 1].trim();
+          if (nextSentence.length < 200) {
+            response += ' ' + nextSentence + '.';
+          }
+        }
+      }
+    }
+  } else if (topResult.similarity > 0.5) {
+    // Medium confidence - use top result but truncate if too long
+    response = topResult.text;
+    if (response.length > 400) {
+      // Take first 400 chars and find a good stopping point
+      const truncated = response.substring(0, 400);
+      const lastPeriod = truncated.lastIndexOf('.');
+      const lastNewline = truncated.lastIndexOf('\n');
+      const stopPoint = Math.max(lastPeriod, lastNewline);
+      if (stopPoint > 200) {
+        response = truncated.substring(0, stopPoint + 1);
+      } else {
+        response = truncated + '...';
+      }
+    }
+  } else {
+    // Low confidence - provide a brief summary
+    const words = topResult.text.split(/\s+/);
+    response = words.slice(0, 50).join(' ') + (words.length > 50 ? '...' : '');
+  }
+  
+  // Clean up the response (remove excessive whitespace, fix formatting)
+  response = response.replace(/\s+/g, ' ').trim();
+  
+  return response;
+}
+
+// Fallback mock response generator (for when vector DB is unavailable)
 function generateMockResponse(input) {
   const lowerInput = input.toLowerCase();
 
@@ -1431,6 +1649,7 @@ function addLine(text, className = '') {
   line.innerHTML = text;
   terminalBody.appendChild(line);
   terminalBody.scrollTop = terminalBody.scrollHeight;
+  return line;
 }
 
 function updateInputDisplay() {
@@ -1736,9 +1955,8 @@ function processCommand(input) {
           addLine(`<span class="output">${output}</span>`);
         }
       } else {
-        // Treat as a question for mock LLM
-        const response = generateMockResponse(trimmed);
-        addLine(`<span class="output info">${response}</span>`);
+        // Treat as a question - use vector DB for intelligent responses
+        handleQuestion(trimmed);
       }
     }
   }

@@ -1,0 +1,367 @@
+RYAN HILL
+Chief Technology Oﬃcer, qBraid
+\faAt : ryanhill@qbraid.com
+\faGlobe : ryanhill.tech
+\faLinkedin : ryan-james-hill
+\faGithub : ryanhill1
+\faStackExchange : ryanhill1
+
+ABOUT ME
+I am a physicist, software developer, and engineering team leader passionate about quantum computing
+and cloud HPC. I received my Master’s in engineering physics at Cornell University, where my research focused on quantum machine learning, speciﬁcally quantum neural networks. As an undergraduate at Cornell, I studied physics and computer science and was a member of the varsity soccer team.
+In addition to my executive role at qBraid, I am a maintainer and lead developer of the qBraid-SDK, qBraidQIR and an active code/community contributor to various other quantum open-source projects including
+Qiskit, Amazon Braket, and PennyLaneAI. Professionally, I am driven to apply my experience across technical roles, program management, and deep tech strategic partnerships to grow the quantum ecosystem, and
+accelerate research and development in the ﬁeld of quantum computing.
+
+EDUCATION
+Master of Engineering, Applied and Engineering Physics | Cornell University
+z 01 2020 – 12 2020
+
+* Ithaca, NY
+
+• Thesis: Supervised Machine Learning in Quantum Feature Spaces with Reservoir-Inspired Applications
+
+Bachelor of Arts, Physics | Cornell University
+z 01 2017 – 12 2019
+
+* Ithaca, NY
+
+• Concentration: Computer Science
+
+EXPERIENCE
+CTO, Software Engineer | qBraid Co.
+z 04 2021 – Present
+
+* Chicago, IL
+
+• Quantum computing, quantum software, cloud computing
+• Leading development of qBraid Lab, a cloud-based IDE/platform highly optimized for quantum computing.
+• Lead developer of qBraid SDK: SW toolkit for cross-FWK abstraction, transpilation, execution of quantum programs.
+
+Open Quantum Benchmark Committee Member | Unitary Fund (Metriq)
+z 04 2024 – Present
+
+* Virtual
+
+• Quantum benchmarking, platform, non-proﬁt
+• Guided the strategic direction of Metriq, a Unitary Fund platform for quantum technology benchmarks, focusing on
+
+performance tracking across diﬀerent computing platforms, software stacks, and workloads over time.
+
+• Contributed expertise in quantum computing, speciﬁcally in simulators and compilers, to enhance Metriq’s ability to
+
+benchmark and compare technology performance, ensuring robust and meaningful data for users.
+
+Mentor | Quantum Open Source Foundation (QOSF)
+z 10 2023 – Present
+
+* Virtual
+
+• Quantum software, open-source, non-proﬁt, qir
+• The QOSF Mentorship Program connects early-career quantum enthusiasts with mentors in academia and industry.
+• Cohort 8: lead 3-person project team in developing qBraid-QIR (Quantum Intermediate Representation), an LLVM-
+
+based quantum compiler integration for the qBraid-SDK.
+
+Research Assistant | McMahon Lab
+z 08 2019 – 05 2021
+
+* Ithaca, NY
+
+• Quantum computing, machine learning, neuromorphic computing
+• Contributed to developing general-purpose HHL-based quantum reservoir computing algorithm.
+• Investigated alleviations to exponentially vanishing gradients (i.e. barren plateaus) in QNNs.
+• Supervised by Professor Peter McMahon, Cornell University School of Applied and Engineering Physics
+
+Research Assistant | Cordes Research Group
+z 06 2019 – 12 2019
+
+* Ithaca, NY
+
+• Radio astronomy, signal processing, machine learning
+• Added noise-ﬁltering module to “black box” scientiﬁc software pipeline to better identify fast radio transients with a
+
+goal to discover new pulsars. Namely, built and trained CNN to classify various types of radio frequency interference.
+
+• Supervised by Professor James M. Cordes, Cornell University Department of Astronomy
+
+Research Assistant | Wilson Synchrotron Lab
+z 02 2019 – 06 2019
+
+* Ithaca, NY
+
+• Accelerator technology, physics of beams, high energy physics
+• Edited, tested, ran Fortran simulations for touschek and residual gas scattering at Cornell-BNL Test Accelerator.
+• Supervised by Professor Georg Hoﬀstaetter, Cornell University Department of Physics
+
+EVENTS
+Exhibitor | MIT Research and Development Conference
+z 11 19 2024 – 11 19 2024
+
+* Cambridge, MA
+
+• Invited to represent qBraid as an exhibitor with a booth at the annual MIT Research and Development Conference,
+
+hosted by the MIT Industrial Liaison Program (ILP).
+
+Mentor | IQuHACK: IonQ Remote Challenge
+z 02 02 2024 – 02 04 2024
+
+* Virtual
+
+• Built REST API to facilitate IonQ Remote Challenge as part of MIT’s annual quantum hackathon. Managed develop-
+
+ment of real-time leader board hosted on qBraid. Served as one of three mentors to over 300 remote participants.
+
+Speaker | Qiskit Fall Fest: Latino
+z 10 30 2023 – 10 30 2023
+
+* Virtual
+
+• Gave talk "Improving Quantum Workﬂows with qBraid Lab" at event hosted by COF Alumni USB, an alumni initiative
+
+seeking to contribute to careers in Physics at the University Simón Bolívar (USB) and other universities in Venezuela.
+
+Mentor | BIG Q Hackathon by Chicago Quantum Exchange and QuantX
+z 09 29 2023 – 10 02 2023
+
+* Chicago, IL
+
+• Quantum competition included a Technical Phase (Days 1 and 2) and a Business Phase (Days 3 and 4). Served as tech-
+
+nical mentor alongisde business mentor from J&J to guide "hackers" in QML project with healthcare application.
+
+Presenter | IBM Quantum Startup Developer Forum
+z 09 12 2023 – 09 14 2023
+
+* Yorktown Heights, NY
+
+• Represented qBraid as presenter at invite-only quantum developer forum held in person at IBM Thomas J. Watson Re-
+
+search Center. Participated in partner activities over three-day event to give feedback on upcoming Qiskit features.
+
+Speaker | Qiskit DemoDays
+z 08 10 2023 – 08 10 2023
+
+* Virtual
+
+• Qiskit DemoDays are public meetings where Qiskit developers share recent and upcoming Qiskit features, bugﬁxes,
+
+and improvements. Was invited to demo the qBraid-SDK following its acceptance into the Qiskit Ecosystem.
+
+Speaker | KNUST Quantum Computing Workshop
+z 05 17 2023 – 05 17 2023
+
+* Virtual
+
+• Lead practical "Quantum Computing with qBraid Lab" at Ghana ’s ﬁrst-ever quantum computing and programming
+
+workshop, hosted by the Dept. of Physics, Kwame Nkrumah University of Science and Technology (KNUST).
+
+Speaker | Xanadu QHack
+z 02 21 2023 – 02 21 2023
+
+* Virtual
+
+• Gave talk "Improving Quantum Workﬂows with qBraid Lab" at Xanadu’s annual quantum hackathon, QHack.
+
+Speaker, Mentor | MIT Interdisciplinary Quantum Hackathon (iQuHACK)
+z 01 27 2023 – 01 29 2023
+
+* Boston, MA
+
+• Speaker and mentor at iQuHACK, annual quantum hackathon sponsored by MIT iQuISE. Event included 300 in-person
+
+attendees and over 1.2K remote participants. Gave ﬁnal talk of opening ceremonies, "Introduction to qBraid Lab".
+
+Exhibitor | SC22: International Supercomputing Conference
+z 11 13 2022 – 11 18 2022
+
+* Dallas, TX
+
+• Represented qBraid as an exhibitor at the Amazon booth at The International Conference for High Performance Com-
+
+puting, Networking, Storage, and Analysis hosted at Kay Bailey Hutchison Convention Center in Dallas, Texas.
+
+Speaker, Mentor, Judge | qBraid HAQS
+z 10 21 2022 – 11 05 2022
+
+* Virtual
+
+• Speaker, mentor and judge at qBraid quantum computing hackathon. Authored and evaluated submissions to QML
+
+challenge and qBraid Open challenge. Gave two-part talk "HAQS Challenges Overview" and "Introduction to VQCs".
+
+Panelist | Qiskit Fall Fest: Mexico
+z 10 18 2022 – 10 18 2022
+
+* Virtual
+
+• One of ﬁve panelists for programmed discussion "Open Source in Quantum Computing" for Qiskit Fall Fest event hosted
+
+by the Computing Research Center of the National Polytechnic Institute in Mexico City, Mexico.
+
+Attendee | IBM Quantum Startup Developer Forum
+z 08 18 2022 – 08 19 2022
+
+* San Jose, CA
+
+• Represented qBraid at invite-only quantum developer forum held in person at IBM Research - Almaden. Discussed
+
+current and upcoming features of Qiskit and shared experience using IBM Quantum’s stack.
+
+Panelist | UChicago-France Exploratory Quantum Workshop
+z 04 27 2022 – 04 28 2022
+
+* Paris, France
+
+• One of three panelists for programmed discussion "Building a Quantum Startup" on day two of "UChicago/CQE - France
+
+Exploratory Workshop on Quantum Science, Engineering and Innovation", at the UChicago Center in Paris.
+
+Speaker, Mentor, Judge | Quantum Coalition Hackathon (QC Hack)
+z 04 04 2022 – 04 10 2022
+
+* Virtual
+
+• Speaker, mentor and judge at Yale x Stanford x Berkeley Quantum Coalition Hackathon. Gave talk "Introduction to
+
+qBraid Platform". Authored and evaluated submissions to OpenQASM Parser Challenge.
+
+Judge | MIT Interdisciplinary Quantum Hackathon (iQuHACK)
+z 01 28 2022 – 01 30 2022
+
+* Virtual
+
+• Judge at MIT Quantum Hackathon. Evaluated submissions to Microsoft x IonQ challenge.
+
+Speaker | Chicago Quantum Exchange Seminar Series
+z 01 29 2022 – 01 29 2022
+
+* Chicago, IL
+
+• Keynote speaker for ﬁnal event in the "Introduction to Quantum Computing Platforms and Software" seminar series,
+
+sponsored by the UChicago Research Computing Center and Quantum Society.
+
+HONORS & AWARDS
+World Congress Pitch Competition, 1st Place (qBraid, 2022)
+ Quantum
+Media: Meet the winners of the ﬁrst Quantum World Congress’ $25K pitch competition
+Startup Pitch Competition, 2nd Place (qBraid, 2021)
+ Q2B
+Media: Duality Cohort 1 Startup qBraid Takes Second at Q2B Startup Pitch Competition
+
+Duality Accelerator, Cohort 1 (qBraid, 2021)
+ Media:
+Duality Quantum Accelerator Accepts Six Startups into Inaugural Cohort
+Conference Academic Honor Roll (Haverford College, 2016)
+ Centennial
+Nominated by coaches and selected by merit of GPA for outstanding academic achievement as student-athlete.
+
+PAPERS & PUBLICATIONS
+• Ryan Hill, Harshit Gupta, Ricky Young, Kanav Setia. "qBraid-SDK: Platform-agnostic quantum runtime framework"
+
+(2024). https://doi.org/10.5281/zenodo.12627596
+
+• Mainak Roy, Jessica John Britto, Ryan Hill, Victor Onofre. "Simulating open quantum systems using noise models and
+
+NISQ devices with error mitigation" (2024). arXiv.2401.06535
+
+• Ville Bergholm, Josh Izaac, Maria Schuld, Christian Gogolin, Shahnawaz Ahmed, Vishnu Ajith, M. Sohaib Alam, Guillermo
+
+Alonso-Linaje, B. Akash- Narayanan, Ali Asadi, Juan Miguel Arrazola, Utkarsh Azad, Sam Banning, Carsten Blank, Thomas
+R Bromley, Benjamin A. Cordier, Jack Ceroni, Alain Delgado, Olivia Di Matteo, Amintor Dusko, Tanya Garg, Diego Guala,
+An- thony Hayes, Ryan Hill, [+44]. "Pennylane: Automatic diﬀerentiation of hybrid quantum-classical computations"
+(2022). arXiv.1811.04968
+
+• Ryan Hill, Maxwell Anderson, Chengji Liu, Logan Wright. "A Practical Introduction to Echo State Networks using Python"
+
+(2021).
+
+• Ryan Hill, Nam Mannucci, Andrew Yates, Logan Wright. "Supervised Machine Learning in Quantum Feature Spaces
+
+with Reservoir-Inspired Applications" (2020).
+
+SKILLS & TOOLS
+
+LANGUAGES
+
+Quantum Software
+
+7+ yrs: Python
+
+Cirq
+
+Amazon Braket
+
+Qiskit
+
+OpenQASM
+
+qBraid-SDK
+
+Transpiler
+
+QIR
+
+Hybrid Algorithms
+
+QML
+
+Compiler
+
+5+ yrs: Bash
+
+Runtime
+4+ yrs: Docker
+
+cuQuantum
+
+3+ yrs: JavaScript
+
+Classical Software
+Git
+
+Docker
+
+K8s
+
+Helm
+
+Scripting
+
+OOP
+
+FP
+2+ yrs: OCaml
+
+NoSQL
+
+MongoDB
+
+REST
+
+CI/CD
+
+AWS
+
+Jupyter
+
+GCP
+
+APIs
+ML
+
+Node.js
+
+Linux
+
+LLVM
+
+Figma
+
+1+ yrs: C++
+Java
+
+

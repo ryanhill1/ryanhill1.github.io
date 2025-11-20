@@ -39,6 +39,15 @@
         autofocus
       />
     </div>
+    <script src="components/vector-db.js"></script>
     <script src="components/cli.js"></script>
+    <script>
+      // Initialize vector DB when page loads
+      document.addEventListener('DOMContentLoaded', async () => {
+        if (typeof window.vectorDB !== 'undefined') {
+          await window.vectorDB.init();
+        }
+      });
+    </script>
   </body>
 </html>
