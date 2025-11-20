@@ -16,7 +16,12 @@ const LINK_DATA = [
     link: 'https://www.linkedin.com/in/ryan-james-hill/',
     color: '#0077B5',
   },
-  { name: 'GitHub', link: 'https://github.com/ryanhill1', color: '#171515' },
+  {
+    name: 'GitHub',
+    link: 'https://github.com/ryanhill1',
+    color: '#171515',
+    darkColor: '#8b949e', // GitHub's grey theme color for dark mode
+  },
   {
     name: 'Stack\nExchange',
     link: 'https://quantumcomputing.stackexchange.com/users/13991/ryanhill1?tab=profile',
@@ -31,11 +36,29 @@ let lastTime = 0;
 let frameCount = 0;
 
 function resizeCanvas() {
-  if (!canvas) return;
+  if (!canvas || !ctx) return;
   const width = Math.max(1, window.innerWidth);
   const height = Math.max(1, window.innerHeight);
-  canvas.width = width;
-  canvas.height = height;
+  
+  // Get device pixel ratio for crisp rendering on high-DPI displays
+  const dpr = window.devicePixelRatio || 1;
+  
+  // Set actual size in memory (scaled for device pixel ratio)
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  
+  // Scale the canvas back down using CSS
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+  
+  // Reset transform and scale the drawing context
+  // This allows us to draw in logical pixels but render at high DPI
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+  
+  // Enable crisp rendering settings
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 }
 
 function combinedAreaRadius(radius1, radius2) {
@@ -44,11 +67,13 @@ function combinedAreaRadius(radius1, radius2) {
 }
 
 class WaveFunction {
-  constructor(isLink = false, label = '', url = '', color = '') {
+  constructor(isLink = false, label = '', url = '', color = '', darkColor = null) {
     this.isLink = isLink;
     this.label = label;
     this.url = url;
-    this.color = isLink ? color : 'rgba(100, 100, 255, 1)';
+    this.baseColor = isLink ? color : 'rgba(100, 100, 255, 1)'; // Store original color
+    this.color = this.baseColor;
+    this.darkColor = darkColor || null; // Optional dark theme color
     this.initializeProperties();
   }
 
@@ -85,8 +110,8 @@ class WaveFunction {
       this.x = position.x;
       this.y = position.y;
     } else {
-      this.x = Math.random() * (canvas.width - 2 * this.radius) + this.radius;
-      this.y = Math.random() * (canvas.height - 2 * this.radius) + this.radius;
+      this.x = Math.random() * (window.innerWidth - 2 * this.radius) + this.radius;
+      this.y = Math.random() * (window.innerHeight - 2 * this.radius) + this.radius;
     }
   }
 
@@ -106,8 +131,9 @@ class WaveFunction {
 
   findValidPosition() {
     const radius = this.radius;
-    const width = Math.max(radius * 2 + 10, canvas.width);
-    const height = Math.max(radius * 2 + 10, canvas.height);
+    // Use logical dimensions (window size) since we're drawing in logical pixel space
+    const width = Math.max(radius * 2 + 10, window.innerWidth);
+    const height = Math.max(radius * 2 + 10, window.innerHeight);
     const centerX = width / 2;
     const centerY = height / 2;
 
@@ -142,15 +168,17 @@ class WaveFunction {
   draw() {
     if (!ctx) return;
     ctx.save();
-    ctx.beginPath();
-    ctx.globalAlpha = this.alpha * (this.spawnProgress / 100);
-    ctx.fillStyle = this.color;
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 15 * this.alpha * (this.spawnProgress / 100);
-
+    
     const scaleFactor = this.spawnProgress / 100;
     const drawRadius = this.radius * scaleFactor;
-
+    const alpha = this.alpha * scaleFactor;
+    
+    // Modern crisp rendering - no blur, clean edges
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = this.color;
+    
+    // Crisp circle with no shadow blur
+    ctx.beginPath();
     ctx.arc(this.x, this.y, drawRadius, 0, Math.PI * 2);
     ctx.fill();
 
@@ -229,9 +257,9 @@ class WaveFunction {
     // This prevents double-adjustment conflicts
     const margin = 1;
     const minX = this.radius + margin;
-    const maxX = canvas.width - this.radius - margin;
+    const maxX = window.innerWidth - this.radius - margin;
     const minY = this.radius + margin;
-    const maxY = canvas.height - this.radius - margin;
+    const maxY = window.innerHeight - this.radius - margin;
 
     // Only clamp if outside bounds (bounce should have handled it, but safety check)
     if (this.x < minX || this.x > maxX || this.y < minY || this.y > maxY) {
@@ -243,16 +271,16 @@ class WaveFunction {
   bounceOffWalls() {
     const margin = 1; // Small margin to ensure the wavefunction stays inside
 
-    if (this.x + this.radius >= canvas.width - margin) {
-      this.x = canvas.width - this.radius - margin;
+    if (this.x + this.radius >= window.innerWidth - margin) {
+      this.x = window.innerWidth - this.radius - margin;
       this.speedX = -Math.abs(this.speedX);
     } else if (this.x - this.radius <= margin) {
       this.x = this.radius + margin;
       this.speedX = Math.abs(this.speedX);
     }
 
-    if (this.y + this.radius >= canvas.height - margin) {
-      this.y = canvas.height - this.radius - margin;
+    if (this.y + this.radius >= window.innerHeight - margin) {
+      this.y = window.innerHeight - this.radius - margin;
       this.speedY = -Math.abs(this.speedY);
     } else if (this.y - this.radius <= margin) {
       this.y = this.radius + margin;
@@ -373,8 +401,17 @@ class WaveFunction {
 }
 
 function initializeWaveFunctions() {
-  LINK_DATA.forEach(({ name, link, color }) => {
-    waveFunctions.push(new WaveFunction(true, name, link, color));
+  LINK_DATA.forEach(({ name, link, color, darkColor }) => {
+    waveFunctions.push(new WaveFunction(true, name, link, color, darkColor));
+  });
+}
+
+function updateBubbleColors(isDark) {
+  // Update all link bubbles that have a darkColor property
+  waveFunctions.forEach((wf) => {
+    if (wf.isLink && wf.darkColor) {
+      wf.color = isDark ? wf.darkColor : wf.baseColor;
+    }
   });
 }
 
@@ -444,7 +481,8 @@ function animate(currentTime) {
 
   if (deltaTime >= FIXED_TIME_STEP / 1000) {
     if (ctx && canvas) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Clear using logical dimensions (context is scaled by DPR)
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
       updateWaveFunctions(cappedDeltaTime);
       waveFunctions = waveFunctions.filter((wf) => !wf.markedForRemoval);
     }
@@ -515,7 +553,7 @@ function createCollisionTest() {
   // Clear existing non-link wave functions
   waveFunctions = waveFunctions.filter((wf) => wf.isLink);
 
-  const centerY = canvas.height / 2;
+  const centerY = window.innerHeight / 2;
   const radius = 40;
   const margin = 100; // Distance from edge of canvas
 
@@ -533,7 +571,7 @@ function createCollisionTest() {
 
   // Create second bubble on the right side, moving left
   const wf2 = new WaveFunction();
-  wf2.x = canvas.width - margin - radius; // Position near right edge
+  wf2.x = window.innerWidth - margin - radius; // Position near right edge
   wf2.y = centerY;
   wf2.radius = radius;
   wf2.mass = radius;
@@ -554,6 +592,44 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
+function initTheme() {
+  const themeToggleButton = document.getElementById('themeToggleButton');
+  if (!themeToggleButton) return;
+
+  // Load saved theme preference or default to light
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  const isDark = savedTheme === 'dark';
+  
+  // Apply theme
+  if (isDark) {
+    document.body.classList.add('dark-theme');
+    themeToggleButton.textContent = '☀️';
+  } else {
+    document.body.classList.remove('dark-theme');
+    themeToggleButton.textContent = '🌙';
+  }
+  
+  // Update bubble colors based on initial theme
+  updateBubbleColors(isDark);
+
+  // Toggle theme on button click
+  themeToggleButton.addEventListener('click', () => {
+    const isCurrentlyDark = document.body.classList.contains('dark-theme');
+    
+    if (isCurrentlyDark) {
+      document.body.classList.remove('dark-theme');
+      themeToggleButton.textContent = '🌙';
+      localStorage.setItem('theme', 'light');
+      updateBubbleColors(false);
+    } else {
+      document.body.classList.add('dark-theme');
+      themeToggleButton.textContent = '☀️';
+      localStorage.setItem('theme', 'dark');
+      updateBubbleColors(true);
+    }
+  });
+}
+
 function init() {
   if (!canvas || !ctx) {
     console.error('Canvas or context not available. Initialization aborted.');
@@ -565,6 +641,7 @@ function init() {
   if (collapseAllButton) {
     collapseAllButton.addEventListener('click', handleCollapseAll);
   }
+  initTheme();
   initializeWaveFunctions();
   setInterval(addNewWaveFunction, 2000);
   animate(0);

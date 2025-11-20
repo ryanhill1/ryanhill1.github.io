@@ -3,6 +3,15 @@ body {
   margin: 0;
   overflow: hidden;
   margin-bottom: 60px; /* Combine margin-bottom here */
+  background-color: #ffffff;
+  color: #000000;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark theme */
+body.dark-theme {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
 }
 
 /* Content styles */
@@ -11,6 +20,12 @@ body {
   z-index: 1;
   padding: 20px;
   pointer-events: none; /* Allow clicks to pass through */
+  color: inherit;
+}
+
+#content h1,
+#content p {
+  color: inherit;
 }
 
 /* Canvas styles */
@@ -19,6 +34,39 @@ body {
   top: 0;
   left: 0;
   z-index: 0;
+}
+
+/* Button styles */
+button {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  font-family: Arial, sans-serif;
+  height: 36px; /* Fixed height for consistent appearance */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+button:hover {
+  background-color: rgba(255, 255, 255, 1);
+  border-color: #999;
+}
+
+body.dark-theme button {
+  background-color: rgba(26, 26, 26, 0.9);
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-theme button:hover {
+  background-color: rgba(26, 26, 26, 1);
+  border-color: #777;
 }
 
 /* Counter styles */
@@ -33,6 +81,12 @@ body {
   padding: 5px 10px;
   border-radius: 5px;
   font-family: Arial, sans-serif;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+body.dark-theme #counter {
+  color: #e0e0e0;
+  background-color: rgba(26, 26, 26, 0.7);
 }
 
 /* Link row styles */
@@ -57,6 +111,11 @@ body {
   color: #000;
   font-size: 18px;
   pointer-events: auto; /* Enable clicking on the links */
+  transition: color 0.3s ease;
+}
+
+body.dark-theme .link-row a {
+  color: #e0e0e0;
 }
 
 /* Divider between links */
@@ -69,6 +128,10 @@ body {
 /* Hover effect for links */
 .link-row a:hover {
   background-color: #f0f0f0;
+}
+
+body.dark-theme .link-row a:hover {
+  background-color: #333333;
 }
 
 /* Styling for the footer */
