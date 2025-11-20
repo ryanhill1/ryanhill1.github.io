@@ -232,7 +232,7 @@ class WaveFunction {
     const maxX = canvas.width - this.radius - margin;
     const minY = this.radius + margin;
     const maxY = canvas.height - this.radius - margin;
-    
+
     // Only clamp if outside bounds (bounce should have handled it, but safety check)
     if (this.x < minX || this.x > maxX || this.y < minY || this.y > maxY) {
       this.x = Math.max(minX, Math.min(maxX, this.x));
@@ -390,7 +390,7 @@ function checkAndSeparateOverlaps() {
       const [wf1, wf2] = [waveFunctions[i], waveFunctions[j]];
       const [dx, dy] = [wf2.x - wf1.x, wf2.y - wf1.y];
       const distance = Math.hypot(dx, dy);
-      
+
       // Handle case where objects are exactly on top of each other
       if (distance === 0) {
         const angle = Math.random() * Math.PI * 2;
@@ -401,7 +401,7 @@ function checkAndSeparateOverlaps() {
         wf2.y += Math.sin(angle) * minSeparation * 0.5;
         continue;
       }
-      
+
       const overlap = wf1.radius + wf2.radius - distance;
       if (overlap > 0) {
         // Add buffer to prevent immediate re-overlap
@@ -431,17 +431,17 @@ function checkAndSeparateOverlaps() {
 
 function animate(currentTime) {
   requestAnimationFrame(animate);
-  
+
   // Handle first frame - initialize lastTime to prevent huge deltaTime
   if (lastTime === 0) {
     lastTime = currentTime;
     return;
   }
-  
+
   const deltaTime = (currentTime - lastTime) / 1000;
   // Cap deltaTime to prevent large jumps (e.g., tab switching)
-  const cappedDeltaTime = Math.min(deltaTime, FIXED_TIME_STEP / 1000 * 2);
-  
+  const cappedDeltaTime = Math.min(deltaTime, (FIXED_TIME_STEP / 1000) * 2);
+
   if (deltaTime >= FIXED_TIME_STEP / 1000) {
     if (ctx && canvas) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -514,11 +514,11 @@ function handleCollapseAll() {
 function createCollisionTest() {
   // Clear existing non-link wave functions
   waveFunctions = waveFunctions.filter((wf) => wf.isLink);
-  
+
   const centerY = canvas.height / 2;
   const radius = 40;
   const margin = 100; // Distance from edge of canvas
-  
+
   // Create first bubble on the left side, moving right
   const wf1 = new WaveFunction();
   wf1.x = margin + radius; // Position near left edge
@@ -530,7 +530,7 @@ function createCollisionTest() {
   wf1.color = 'rgba(255, 100, 100, 1)'; // Red
   wf1.spawnProgress = 100; // Fully spawned
   waveFunctions.push(wf1);
-  
+
   // Create second bubble on the right side, moving left
   const wf2 = new WaveFunction();
   wf2.x = canvas.width - margin - radius; // Position near right edge
@@ -542,7 +542,7 @@ function createCollisionTest() {
   wf2.color = 'rgba(100, 100, 255, 1)'; // Blue
   wf2.spawnProgress = 100; // Fully spawned
   waveFunctions.push(wf2);
-  
+
   console.log('Collision test created: Two bubbles heading toward each other');
   console.log('Press "t" key to create another collision test');
 }
