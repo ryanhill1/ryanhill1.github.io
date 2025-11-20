@@ -4,7 +4,8 @@
   "description": "Personal website",
   "main": "index.js",
   "scripts": {
-    "dev": "python start_server.py",
+    "dev": "live-server --port=8000 --open=/",
+    "dev:python": "python start_server.py",
     "build": "python -m pip install build && python -m build --wheel && python -m pip install dist/*.whl --no-warn-script-location && python -m build_app",
     "build:clean": "rimraf build dist && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,9 +20,9 @@
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "husky": "^9.1.6",
+    "live-server": "^1.2.2",
     "prettier": "^3.3.3",
     "rimraf": "^5.0.0"
   },
   "type": "module"
 }
-
