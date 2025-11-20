@@ -14,25 +14,71 @@ let currentDirectory = '/home/ryan/portfolio';
 const fileSystem = {
   '/home/ryan/portfolio': {
     files: [
-      { name: 'about.txt', size: 245, permissions: '-rw-r--r--', owner: 'ryan', date: 'Oct 15 10:30' },
-      { name: 'contact.md', size: 189, permissions: '-rw-r--r--', owner: 'ryan', date: 'Oct 14 14:22' },
+      {
+        name: 'about.txt',
+        size: 245,
+        permissions: '-rw-r--r--',
+        owner: 'ryan',
+        date: 'Oct 15 10:30',
+      },
+      {
+        name: 'contact.md',
+        size: 189,
+        permissions: '-rw-r--r--',
+        owner: 'ryan',
+        date: 'Oct 14 14:22',
+      },
     ],
     directories: [
-      { name: 'projects', permissions: 'drwxr-xr-x', owner: 'ryan', date: 'Oct 10 09:15' },
-      { name: 'research', permissions: 'drwxr-xr-x', owner: 'ryan', date: 'Oct 12 16:45' },
+      {
+        name: 'projects',
+        permissions: 'drwxr-xr-x',
+        owner: 'ryan',
+        date: 'Oct 10 09:15',
+      },
+      {
+        name: 'research',
+        permissions: 'drwxr-xr-x',
+        owner: 'ryan',
+        date: 'Oct 12 16:45',
+      },
     ],
   },
   '/home/ryan/portfolio/projects': {
     files: [
-      { name: 'website.md', size: 512, permissions: '-rw-r--r--', owner: 'ryan', date: 'Oct 20 11:00' },
-      { name: 'quantum-algorithms.md', size: 1024, permissions: '-rw-r--r--', owner: 'ryan', date: 'Oct 18 15:30' },
+      {
+        name: 'website.md',
+        size: 512,
+        permissions: '-rw-r--r--',
+        owner: 'ryan',
+        date: 'Oct 20 11:00',
+      },
+      {
+        name: 'quantum-algorithms.md',
+        size: 1024,
+        permissions: '-rw-r--r--',
+        owner: 'ryan',
+        date: 'Oct 18 15:30',
+      },
     ],
     directories: [],
   },
   '/home/ryan/portfolio/research': {
     files: [
-      { name: 'papers.md', size: 2048, permissions: '-rw-r--r--', owner: 'ryan', date: 'Oct 22 09:00' },
-      { name: 'notes.txt', size: 768, permissions: '-rw-r--r--', owner: 'ryan', date: 'Oct 21 13:20' },
+      {
+        name: 'papers.md',
+        size: 2048,
+        permissions: '-rw-r--r--',
+        owner: 'ryan',
+        date: 'Oct 22 09:00',
+      },
+      {
+        name: 'notes.txt',
+        size: 768,
+        permissions: '-rw-r--r--',
+        owner: 'ryan',
+        date: 'Oct 21 13:20',
+      },
     ],
     directories: [],
   },
@@ -48,11 +94,15 @@ function getDirectoryNames(dir) {
 }
 
 function findFile(dir, filename) {
-  return dir.files.find((f) => (typeof f === 'string' ? f === filename : f.name === filename));
+  return dir.files.find((f) =>
+    typeof f === 'string' ? f === filename : f.name === filename,
+  );
 }
 
 function findDirectory(dir, dirname) {
-  return dir.directories.find((d) => (typeof d === 'string' ? d === dirname : d.name === dirname));
+  return dir.directories.find((d) =>
+    typeof d === 'string' ? d === dirname : d.name === dirname,
+  );
 }
 
 function getFileContent(fileName) {
@@ -227,7 +277,7 @@ ${knowledgeBase.projects.map((project) => `  • ${project}`).join('\n')}`;
       currentDirectory = '/home/ryan/portfolio';
       return null;
     }
-    
+
     if (target === '..') {
       // Go up one directory
       const parts = currentDirectory.split('/').filter((p) => p);
@@ -238,7 +288,7 @@ ${knowledgeBase.projects.map((project) => `  • ${project}`).join('\n')}`;
       }
       return null;
     }
-    
+
     if (target.startsWith('/')) {
       // Absolute path
       if (fileSystem[target]) {
@@ -247,18 +297,19 @@ ${knowledgeBase.projects.map((project) => `  • ${project}`).join('\n')}`;
       }
       return `cd: ${target}: No such file or directory`;
     }
-    
+
     // Relative path
     const dir = fileSystem[currentDirectory];
     if (!dir) {
       return `cd: ${target}: No such file or directory`;
     }
-    
+
     // Check if it's a directory in current location
     if (findDirectory(dir, target)) {
-      const newPath = currentDirectory === '/' 
-        ? `/${target}` 
-        : `${currentDirectory}/${target}`;
+      const newPath =
+        currentDirectory === '/'
+          ? `/${target}`
+          : `${currentDirectory}/${target}`;
       // Initialize if doesn't exist
       if (!fileSystem[newPath]) {
         fileSystem[newPath] = { files: [], directories: [] };
@@ -266,7 +317,7 @@ ${knowledgeBase.projects.map((project) => `  • ${project}`).join('\n')}`;
       currentDirectory = newPath;
       return null;
     }
-    
+
     return `cd: ${target}: No such file or directory`;
   },
 
@@ -275,33 +326,52 @@ ${knowledgeBase.projects.map((project) => `  • ${project}`).join('\n')}`;
     if (!dir) {
       return `ls: cannot access '${currentDirectory}': No such file or directory`;
     }
-    
+
     const showAll = args.includes('-a') || args.includes('--all');
-    const longFormat = args.includes('-l') || args.includes('-la') || args.includes('-al');
-    
+    const longFormat =
+      args.includes('-l') || args.includes('-la') || args.includes('-al');
+
     if (longFormat) {
       // ls -la format: permissions links owner group size date name
       const lines = ['total ' + (dir.files.length + dir.directories.length)];
-      
+
       // Add directories
       dir.directories.forEach((d) => {
-        const dirObj = typeof d === 'string' 
-          ? { name: d, permissions: 'drwxr-xr-x', owner: 'ryan', date: 'Oct 15 10:00', size: 4096 }
-          : d;
-        lines.push(`${dirObj.permissions}  2 ${dirObj.owner} ryan ${String(dirObj.size || 4096).padStart(5)} ${dirObj.date} ${dirObj.name}/`);
+        const dirObj =
+          typeof d === 'string'
+            ? {
+                name: d,
+                permissions: 'drwxr-xr-x',
+                owner: 'ryan',
+                date: 'Oct 15 10:00',
+                size: 4096,
+              }
+            : d;
+        lines.push(
+          `${dirObj.permissions}  2 ${dirObj.owner} ryan ${String(dirObj.size || 4096).padStart(5)} ${dirObj.date} ${dirObj.name}/`,
+        );
       });
-      
+
       // Add files
       dir.files.forEach((f) => {
-        const fileObj = typeof f === 'string'
-          ? { name: f, permissions: '-rw-r--r--', owner: 'ryan', date: 'Oct 15 10:00', size: 1024 }
-          : f;
-        lines.push(`${fileObj.permissions}  1 ${fileObj.owner} ryan ${String(fileObj.size).padStart(5)} ${fileObj.date} ${fileObj.name}`);
+        const fileObj =
+          typeof f === 'string'
+            ? {
+                name: f,
+                permissions: '-rw-r--r--',
+                owner: 'ryan',
+                date: 'Oct 15 10:00',
+                size: 1024,
+              }
+            : f;
+        lines.push(
+          `${fileObj.permissions}  1 ${fileObj.owner} ryan ${String(fileObj.size).padStart(5)} ${fileObj.date} ${fileObj.name}`,
+        );
       });
-      
+
       return lines.join('\n');
     }
-    
+
     // Regular ls
     const items = [
       ...getDirectoryNames(dir).map((d) => `${d}/`),
@@ -315,23 +385,23 @@ ${knowledgeBase.projects.map((project) => `  • ${project}`).join('\n')}`;
     if (!file) {
       return 'cat: missing file operand\nTry: cat [filename]';
     }
-    
+
     // Check if file exists in current directory
     const dir = fileSystem[currentDirectory];
     if (!dir) {
       return `cat: ${file}: No such file or directory`;
     }
-    
+
     // Check if it's a directory
     if (findDirectory(dir, file)) {
       return `cat: ${file}: Is a directory`;
     }
-    
+
     // Check if file exists
     if (!findFile(dir, file)) {
       return `cat: ${file}: No such file or directory`;
     }
-    
+
     const content = getFileContent(file);
     if (!content) {
       return `cat: ${file}: No such file or directory`;
@@ -344,21 +414,21 @@ ${knowledgeBase.projects.map((project) => `  • ${project}`).join('\n')}`;
     if (!pattern) {
       return 'grep: missing pattern\nUsage: grep [pattern]';
     }
-    
+
     // Remove quotes if present
     const cleanPattern = pattern.replace(/^['"]|['"]$/g, '');
-    
+
     // If stdin is provided (from pipe), search in it
     const textToSearch = stdin || '';
-    
+
     if (!textToSearch) {
       return 'grep: no input provided\nUse with pipe: cat file.txt | grep pattern';
     }
-    
+
     // Escape special regex characters in pattern for literal matching
     const escapedPattern = cleanPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`(${escapedPattern})`, 'gi');
-    
+
     // Split into lines and filter matching lines, highlighting matches
     const lines = textToSearch.split('\n');
     const matchingLines = lines
@@ -367,30 +437,30 @@ ${knowledgeBase.projects.map((project) => `  • ${project}`).join('\n')}`;
         // Replace all occurrences of the pattern with highlighted version
         return line.replace(regex, '<span class="grep-match">$1</span>');
       });
-    
+
     return matchingLines.join('\n') || '';
   },
 
   rm: (args) => {
     if (args.length === 0) {
-      return 'rm: missing operand\nTry \'rm --help\' for more information.';
+      return "rm: missing operand\nTry 'rm --help' for more information.";
     }
-    
+
     // Check for -rf flag
     let targetIndex = 0;
     let isRecursive = false;
-    
+
     if (args[0] === '-rf' || args[0] === '-r' || args[0] === '-f') {
       isRecursive = args[0].includes('r');
       targetIndex = 1;
     }
-    
+
     if (targetIndex >= args.length) {
-      return 'rm: missing operand\nTry \'rm --help\' for more information.';
+      return "rm: missing operand\nTry 'rm --help' for more information.";
     }
-    
+
     const target = args[targetIndex];
-    
+
     // Build the full path
     let fullPath;
     if (target.startsWith('/')) {
@@ -398,94 +468,108 @@ ${knowledgeBase.projects.map((project) => `  • ${project}`).join('\n')}`;
       fullPath = target;
     } else {
       // Relative path
-      fullPath = currentDirectory === '/' 
-        ? `/${target}` 
-        : `${currentDirectory}/${target}`;
+      fullPath =
+        currentDirectory === '/'
+          ? `/${target}`
+          : `${currentDirectory}/${target}`;
     }
-    
+
     // Check if target exists in current directory
     const dir = fileSystem[currentDirectory];
     if (!dir) {
       return `rm: cannot remove '${fullPath}': No such file or directory`;
     }
-    
+
     // Check if it's a file or directory
     const isFile = !!findFile(dir, target);
     const isDirectory = !!findDirectory(dir, target);
-    
+
     if (!isFile && !isDirectory) {
       return `rm: cannot remove '${fullPath}': No such file or directory`;
     }
-    
+
     // Always return permission denied
     if (isDirectory && !isRecursive) {
       return `rm: cannot remove '${fullPath}': Is a directory`;
     }
-    
+
     return `rm: cannot remove '${fullPath}': Permission denied`;
   },
 
   cp: (args) => {
     if (args.length < 2) {
-      return 'cp: missing file operand\nTry \'cp --help\' for more information.';
+      return "cp: missing file operand\nTry 'cp --help' for more information.";
     }
-    
+
     const source = args[args.length - 2];
     const dest = args[args.length - 1];
-    
+
     const dir = fileSystem[currentDirectory];
     if (!dir) {
       return `cp: cannot stat '${source}': No such file or directory`;
     }
-    
+
     const sourceFile = findFile(dir, source);
     if (!sourceFile) {
       return `cp: cannot stat '${source}': No such file or directory`;
     }
-    
+
     // Create a copy in the same directory (simplified)
-    const sourceName = typeof sourceFile === 'string' ? sourceFile : sourceFile.name;
+    const sourceName =
+      typeof sourceFile === 'string' ? sourceFile : sourceFile.name;
     const destName = dest;
-    
+
     // Check if destination already exists
     if (findFile(dir, destName) || findDirectory(dir, destName)) {
       return `cp: cannot create regular file '${destName}': File exists`;
     }
-    
+
     // Add new file (simplified - just add to list)
-    const newFile = typeof sourceFile === 'string'
-      ? { name: destName, size: 1024, permissions: '-rw-r--r--', owner: 'ryan', date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }
-      : { ...sourceFile, name: destName };
+    const newFile =
+      typeof sourceFile === 'string'
+        ? {
+            name: destName,
+            size: 1024,
+            permissions: '-rw-r--r--',
+            owner: 'ryan',
+            date: new Date().toLocaleDateString('en-US', {
+              month: 'short',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+          }
+        : { ...sourceFile, name: destName };
     dir.files.push(newFile);
-    
+
     return ''; // Success, no output
   },
 
   mv: (args) => {
     if (args.length < 2) {
-      return 'mv: missing file operand\nTry \'mv --help\' for more information.';
+      return "mv: missing file operand\nTry 'mv --help' for more information.";
     }
-    
+
     const source = args[args.length - 2];
     const dest = args[args.length - 1];
-    
+
     const dir = fileSystem[currentDirectory];
     if (!dir) {
       return `mv: cannot stat '${source}': No such file or directory`;
     }
-    
+
     const sourceFile = findFile(dir, source);
     const sourceDir = findDirectory(dir, source);
-    
+
     if (!sourceFile && !sourceDir) {
       return `mv: cannot stat '${source}': No such file or directory`;
     }
-    
+
     // Check if destination exists
     if (findFile(dir, dest) || findDirectory(dir, dest)) {
       return `mv: cannot move '${source}' to '${dest}': File exists`;
     }
-    
+
     // Rename the file or directory
     if (sourceFile) {
       const index = dir.files.indexOf(sourceFile);
@@ -502,109 +586,126 @@ ${knowledgeBase.projects.map((project) => `  • ${project}`).join('\n')}`;
         dir.directories[index] = { ...sourceDir, name: dest };
       }
     }
-    
+
     return ''; // Success
   },
 
   mkdir: (args) => {
     if (args.length === 0) {
-      return 'mkdir: missing operand\nTry \'mkdir --help\' for more information.';
+      return "mkdir: missing operand\nTry 'mkdir --help' for more information.";
     }
-    
+
     const dirName = args[0];
     const dir = fileSystem[currentDirectory];
     if (!dir) {
       return `mkdir: cannot create directory '${dirName}': No such file or directory`;
     }
-    
+
     // Check if already exists
     if (findDirectory(dir, dirName) || findFile(dir, dirName)) {
       return `mkdir: cannot create directory '${dirName}': File exists`;
     }
-    
+
     // Create new directory
     const newDir = {
       name: dirName,
       permissions: 'drwxr-xr-x',
       owner: 'ryan',
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+      date: new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     };
     dir.directories.push(newDir);
-    
+
     // Initialize the directory in fileSystem
-    const newPath = currentDirectory === '/' 
-      ? `/${dirName}` 
-      : `${currentDirectory}/${dirName}`;
+    const newPath =
+      currentDirectory === '/'
+        ? `/${dirName}`
+        : `${currentDirectory}/${dirName}`;
     fileSystem[newPath] = { files: [], directories: [] };
-    
+
     return ''; // Success
   },
 
   rmdir: (args) => {
     if (args.length === 0) {
-      return 'rmdir: missing operand\nTry \'rmdir --help\' for more information.';
+      return "rmdir: missing operand\nTry 'rmdir --help' for more information.";
     }
-    
+
     const dirName = args[0];
-    const fullPath = currentDirectory === '/' 
-      ? `/${dirName}` 
-      : `${currentDirectory}/${dirName}`;
-    
+    const fullPath =
+      currentDirectory === '/'
+        ? `/${dirName}`
+        : `${currentDirectory}/${dirName}`;
+
     const dir = fileSystem[currentDirectory];
     if (!dir) {
       return `rmdir: cannot remove '${fullPath}': No such file or directory`;
     }
-    
+
     const targetDir = findDirectory(dir, dirName);
     if (!targetDir) {
       return `rmdir: failed to remove '${dirName}': No such file or directory`;
     }
-    
+
     // Check if directory is empty
-    const targetPath = currentDirectory === '/' 
-      ? `/${dirName}` 
-      : `${currentDirectory}/${dirName}`;
+    const targetPath =
+      currentDirectory === '/'
+        ? `/${dirName}`
+        : `${currentDirectory}/${dirName}`;
     const targetDirContents = fileSystem[targetPath];
-    if (targetDirContents && (targetDirContents.files.length > 0 || targetDirContents.directories.length > 0)) {
+    if (
+      targetDirContents &&
+      (targetDirContents.files.length > 0 ||
+        targetDirContents.directories.length > 0)
+    ) {
       return `rmdir: failed to remove '${dirName}': Directory not empty`;
     }
-    
+
     // Always return permission denied
     return `rmdir: cannot remove '${fullPath}': Permission denied`;
   },
 
   touch: (args) => {
     if (args.length === 0) {
-      return 'touch: missing file operand\nTry \'touch --help\' for more information.';
+      return "touch: missing file operand\nTry 'touch --help' for more information.";
     }
-    
+
     const fileName = args[0];
     const dir = fileSystem[currentDirectory];
     if (!dir) {
       return `touch: cannot touch '${fileName}': No such file or directory`;
     }
-    
+
     // Check if file already exists
     if (findFile(dir, fileName)) {
       // Update modification time (simulated)
       return ''; // Success, file exists
     }
-    
+
     // Check if it's a directory
     if (findDirectory(dir, fileName)) {
       return `touch: cannot touch '${fileName}': Is a directory`;
     }
-    
+
     // Create new file
     const newFile = {
       name: fileName,
       size: 0,
       permissions: '-rw-r--r--',
       owner: 'ryan',
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+      date: new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     };
     dir.files.push(newFile);
-    
+
     return ''; // Success
   },
 
@@ -629,7 +730,7 @@ MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.  12288.0 avail Mem
   ps: (args) => {
     const aux = args.includes('aux') || args.includes('-aux');
     const ef = args.includes('-ef');
-    
+
     if (aux || ef) {
       return `USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 ryan      1234  2.3  6.2  12345  1024 ?        S    09:00   5:30 quantum-simulator
@@ -638,7 +739,7 @@ ryan      1236  0.8  1.5   4096   256 ?        S    10:00   1:20 research-notes
 ryan      1237  0.3  0.8   2048   128 ?        S    10:15   0:45 cli-interface
 ryan      1238  0.1  0.5   1024    64 ?        S    10:20   0:10 portfolio-site`;
     }
-    
+
     return `  PID TTY          TIME CMD
  1234 ?        00:05:30 quantum-simulator
  1235 ?        00:03:15 website-dev
@@ -653,7 +754,7 @@ ryan      1238  0.1  0.5   1024    64 ?        S    10:20   0:10 portfolio-site`
     const used = h ? '12' : '12582912';
     const avail = h ? '35' : '36700160';
     const use = '25%';
-    
+
     return `Filesystem      ${h ? 'Size' : '1K-blocks'}  Used Available Use% Mounted on
 /dev/sda1        ${size.padStart(8)}${unit} ${used.padStart(8)}${unit} ${avail.padStart(8)}${unit}  ${use} /
 tmpfs             2.0${unit}     0${unit.padEnd(1)}  2.0${unit.padEnd(1)}   0% /dev/shm
@@ -664,16 +765,16 @@ tmpfs             4.0${unit}     0${unit.padEnd(1)}  4.0${unit.padEnd(1)}   0% /
     const h = args.includes('-h') || args.includes('--human-readable');
     const sh = args.includes('-sh');
     const target = args.find((arg) => !arg.startsWith('-')) || '.';
-    
+
     if (sh && target === '.') {
       return h ? '2.5M\t.' : '2560\t.';
     }
-    
+
     const dir = fileSystem[currentDirectory];
     if (!dir) {
       return `du: cannot access '${target}': No such file or directory`;
     }
-    
+
     if (h) {
       return `512K\t./projects
 1.2M\t./research
@@ -681,7 +782,7 @@ tmpfs             4.0${unit}     0${unit.padEnd(1)}  4.0${unit.padEnd(1)}   0% /
 128K\t./contact.md
 2.5M\t.`;
     }
-    
+
     return `512\t./projects
 1224\t./research
 256\t./about.txt
@@ -691,11 +792,11 @@ tmpfs             4.0${unit}     0${unit.padEnd(1)}  4.0${unit.padEnd(1)}   0% /
 
   curl: (args) => {
     if (args.length === 0) {
-      return 'curl: try \'curl --help\' or \'curl --manual\' for more information';
+      return "curl: try 'curl --help' or 'curl --manual' for more information";
     }
-    
+
     const url = args[args.length - 1];
-    
+
     // Check for common flags
     if (args.includes('--help') || args.includes('-h')) {
       return `curl: try 'curl --help' or 'curl --manual' for more information
@@ -708,7 +809,7 @@ Usage: curl [options...] <url>
      -s, --silent          Silent mode
      -v, --verbose         Verbose mode`;
     }
-    
+
     // Mock response for any URL
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return `  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -724,7 +825,7 @@ Usage: curl [options...] <url>
 </body>
 </html>`;
     }
-    
+
     return `curl: (6) Could not resolve host: ${url}`;
   },
 
@@ -732,10 +833,12 @@ Usage: curl [options...] <url>
     if (args.length === 0) {
       return 'ping: usage error: Destination address required';
     }
-    
+
     const host = args[0];
-    const count = args.includes('-c') ? parseInt(args[args.indexOf('-c') + 1]) || 4 : 4;
-    
+    const count = args.includes('-c')
+      ? parseInt(args[args.indexOf('-c') + 1]) || 4
+      : 4;
+
     if (host === 'localhost' || host === '127.0.0.1') {
       let output = `PING ${host} (127.0.0.1) 56(84) bytes of data.\n`;
       for (let i = 0; i < count; i++) {
@@ -747,7 +850,7 @@ Usage: curl [options...] <url>
       output += `rtt min/avg/max/mdev = 0.100/${(0.5 + Math.random() * 1.5).toFixed(3)}/2.500/0.500 ms`;
       return output;
     }
-    
+
     return `ping: ${host}: Name or service not known`;
   },
 
@@ -755,7 +858,7 @@ Usage: curl [options...] <url>
     if (args.length === 0) {
       return 'usage: ssh [-46AaCfGgKkMNnqsTtVvXxYy] [-b bind_address] [-c cipher_spec]\n           [-D [bind_address:]port] [-E log_file] [-e escape_char]\n           [-F configfile] [-I pkcs11] [-i identity_file]\n           [-J destination] [-L address] [-l login_name] [-m mac_spec]\n           [-O ctl_cmd] [-o option] [-p port] [-Q query_option] [-R address]\n           [-S ctl_path] [-W host:port] [-w local_tun[:remote_tun]]\n           destination [command]';
     }
-    
+
     const host = args[args.length - 1];
     return `ssh: connect to host ${host} port 22: Connection refused\n(Don't worry, this is just a portfolio site - no actual SSH access!)`;
   },
@@ -764,7 +867,7 @@ Usage: curl [options...] <url>
     if (args.length < 2) {
       return 'usage: scp [-346BCpqrTv] [-c cipher] [-F ssh_config] [-i identity_file]\n           [-l limit] [-o ssh_option] [-P port] [-S program]\n           source ... target';
     }
-    
+
     const source = args[args.length - 2];
     const dest = args[args.length - 1];
     return `scp: ${source}: No such file or directory\n(File transfer disabled - this is a portfolio CLI, not a real server!)`;
@@ -786,9 +889,13 @@ Basic commands:
 
 This is a portfolio site - package management is disabled for security reasons!`;
     }
-    
+
     const command = args[0];
-    if (command === 'install' || command === 'remove' || command === 'upgrade') {
+    if (
+      command === 'install' ||
+      command === 'remove' ||
+      command === 'upgrade'
+    ) {
       return `Reading package lists... Done
 Building dependency tree... Done
 E: Could not open lock file /var/lib/dpkg/lock-frontend - open (13: Permission denied)
@@ -796,7 +903,7 @@ E: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), are y
 
 (This is a portfolio site - no actual package management!)`;
     }
-    
+
     return `This is a portfolio site - package management is disabled!`;
   },
 
@@ -812,7 +919,7 @@ remove          Remove a package or packages from your system
 
 This is a portfolio site - package management is disabled!`;
     }
-    
+
     return `Loaded plugins: fastestmirror
 Error: This is a portfolio site - no actual package management!
        (But nice try! 😊)`;
@@ -830,13 +937,13 @@ Error: This is a portfolio site - no actual package management!
 
 This is a portfolio site - Homebrew is disabled!`;
     }
-    
+
     const command = args[0];
     if (command === 'install' || command === 'uninstall') {
       return `Error: This is a portfolio site - Homebrew is not available!
 (But you have good taste in package managers! 🍺)`;
     }
-    
+
     return `This is a portfolio site - Homebrew is disabled!`;
   },
 
@@ -844,26 +951,26 @@ This is a portfolio site - Homebrew is disabled!`;
     if (args.length === 0) {
       return 'usage: git [--version] [--help] [-C <path>] [-c name=value]\n           [--exec-path[=<path>] [--html-path] [--man-path] [--info-path]\n           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n           [--git-dir=<path>] [--work-tree=<path>] <command> [<args>]';
     }
-    
+
     const command = args[0];
-    
+
     if (command === 'status') {
       return `On branch main
 Your branch is up to date with 'origin/main'.
 
 nothing to commit, working tree clean`;
     }
-    
+
     if (command === 'log' || command === '--oneline') {
       return `a1b2c3d (HEAD -> main, origin/main) Add CLI interface
 d4e5f6g Update wavefunction visualization
 g7h8i9j Initial commit`;
     }
-    
+
     if (command === 'branch') {
       return '* main';
     }
-    
+
     if (command === 'remote') {
       if (args[1] === '-v') {
         return `origin  https://github.com/ryanhill1/ryanhill1.github.io.git (fetch)
@@ -871,38 +978,38 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
       }
       return 'origin';
     }
-    
+
     if (command === 'clone' || command === 'push' || command === 'pull') {
       return `This is a portfolio site - git operations are read-only!
 (You can view the source at: https://github.com/ryanhill1/ryanhill1.github.io)`;
     }
-    
+
     return `git: '${command}' is not a git command. See 'git --help'.`;
   },
 
   less: (args, stdin = '') => {
     const file = args[0];
     let content = stdin;
-    
+
     if (!content && file) {
       const dir = fileSystem[currentDirectory];
       if (!dir) {
         return `less: ${file}: No such file or directory`;
       }
-      
+
       const fileObj = findFile(dir, file);
       if (!fileObj) {
         return `less: ${file}: No such file or directory`;
       }
-      
+
       const fileName = typeof fileObj === 'string' ? fileObj : fileObj.name;
       content = getFileContent(fileName);
     }
-    
+
     if (!content) {
       return `less: no input provided`;
     }
-    
+
     // Simulate less - just show the content (in real less, you'd have scrolling)
     return content;
   },
@@ -913,79 +1020,85 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
   },
 
   head: (args, stdin = '') => {
-    const n = args.includes('-n') ? parseInt(args[args.indexOf('-n') + 1]) || 10 : 10;
+    const n = args.includes('-n')
+      ? parseInt(args[args.indexOf('-n') + 1]) || 10
+      : 10;
     const file = args.find((arg) => !arg.startsWith('-') && arg !== '');
     let content = stdin;
-    
+
     if (!content && file) {
       const dir = fileSystem[currentDirectory];
       if (!dir) {
         return `head: cannot open '${file}' for reading: No such file or directory`;
       }
-      
+
       const fileObj = findFile(dir, file);
       if (!fileObj) {
         return `head: cannot open '${file}' for reading: No such file or directory`;
       }
-      
+
       const fileName = typeof fileObj === 'string' ? fileObj : fileObj.name;
       content = getFileContent(fileName);
     }
-    
+
     if (!content && !file) {
       return 'head: missing file operand';
     }
-    
+
     const lines = content.split('\n');
     return lines.slice(0, n).join('\n');
   },
 
   tail: (args, stdin = '') => {
-    const n = args.includes('-n') ? parseInt(args[args.indexOf('-n') + 1]) || 10 : 10;
+    const n = args.includes('-n')
+      ? parseInt(args[args.indexOf('-n') + 1]) || 10
+      : 10;
     const file = args.find((arg) => !arg.startsWith('-') && arg !== '');
     let content = stdin;
-    
+
     if (!content && file) {
       const dir = fileSystem[currentDirectory];
       if (!dir) {
         return `tail: cannot open '${file}' for reading: No such file or directory`;
       }
-      
+
       const fileObj = findFile(dir, file);
       if (!fileObj) {
         return `tail: cannot open '${file}' for reading: No such file or directory`;
       }
-      
+
       const fileName = typeof fileObj === 'string' ? fileObj : fileObj.name;
       content = getFileContent(fileName);
     }
-    
+
     if (!content && !file) {
       return 'tail: missing file operand';
     }
-    
+
     const lines = content.split('\n');
     return lines.slice(-n).join('\n');
   },
 
   find: (args) => {
     const path = args.find((arg) => !arg.startsWith('-')) || '.';
-    const name = args.includes('-name') ? args[args.indexOf('-name') + 1] : null;
-    
+    const name = args.includes('-name')
+      ? args[args.indexOf('-name') + 1]
+      : null;
+
     if (!name) {
-      return 'find: missing argument to `-name\'';
+      return "find: missing argument to `-name'";
     }
-    
+
     // Remove quotes if present
     const pattern = name.replace(/^['"]|['"]$/g, '').replace(/\*/g, '.*');
     const regex = new RegExp(`^${pattern}$`, 'i');
-    
+
     const results = [];
-    
+
     function searchDir(dirPath) {
       const dir = fileSystem[dirPath];
       if (!dir) return;
-      
+
       // Search files
       getFileNames(dir).forEach((file) => {
         if (regex.test(file)) {
@@ -993,24 +1106,31 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
           results.push(fullPath);
         }
       });
-      
+
       // Search directories
       getDirectoryNames(dir).forEach((dirName) => {
         if (regex.test(dirName)) {
-          const fullPath = dirPath === '/' ? `/${dirName}` : `${dirPath}/${dirName}`;
+          const fullPath =
+            dirPath === '/' ? `/${dirName}` : `${dirPath}/${dirName}`;
           results.push(fullPath);
         }
         // Recursively search subdirectories
-        const subPath = dirPath === '/' ? `/${dirName}` : `${dirPath}/${dirName}`;
+        const subPath =
+          dirPath === '/' ? `/${dirName}` : `${dirPath}/${dirName}`;
         if (fileSystem[subPath]) {
           searchDir(subPath);
         }
       });
     }
-    
-    const searchPath = path === '.' ? currentDirectory : path.startsWith('/') ? path : `${currentDirectory}/${path}`;
+
+    const searchPath =
+      path === '.'
+        ? currentDirectory
+        : path.startsWith('/')
+          ? path
+          : `${currentDirectory}/${path}`;
     searchDir(searchPath);
-    
+
     return results.length > 0 ? results.join('\n') : '';
   },
 
@@ -1020,30 +1140,30 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
     const c = args.includes('-c');
     const file = args.find((arg) => !arg.startsWith('-'));
     let content = stdin;
-    
+
     if (!content && file) {
       const dir = fileSystem[currentDirectory];
       if (!dir) {
         return `wc: ${file}: No such file or directory`;
       }
-      
+
       const fileObj = findFile(dir, file);
       if (!fileObj) {
         return `wc: ${file}: No such file or directory`;
       }
-      
+
       const fileName = typeof fileObj === 'string' ? fileObj : fileObj.name;
       content = getFileContent(fileName);
     }
-    
+
     if (!content && !file) {
       return 'wc: missing file operand';
     }
-    
+
     const lines = content.split('\n');
     const words = content.split(/\s+/).filter((w) => w.length > 0);
     const chars = content.length;
-    
+
     if (l && w && c) {
       return `${lines.length} ${words.length} ${chars} ${file || ''}`;
     } else if (l) {
@@ -1053,7 +1173,7 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
     } else if (c) {
       return `${chars} ${file || ''}`;
     }
-    
+
     return `${lines.length} ${words.length} ${chars} ${file || ''}`;
   },
 
@@ -1061,26 +1181,26 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
     const r = args.includes('-r');
     const file = args.find((arg) => !arg.startsWith('-'));
     let content = stdin;
-    
+
     if (!content && file) {
       const dir = fileSystem[currentDirectory];
       if (!dir) {
         return `sort: ${file}: No such file or directory`;
       }
-      
+
       const fileObj = findFile(dir, file);
       if (!fileObj) {
         return `sort: ${file}: No such file or directory`;
       }
-      
+
       const fileName = typeof fileObj === 'string' ? fileObj : fileObj.name;
       content = getFileContent(fileName);
     }
-    
+
     if (!content && !file) {
       return 'sort: missing file operand';
     }
-    
+
     const lines = content.split('\n');
     const sorted = r ? lines.sort().reverse() : lines.sort();
     return sorted.join('\n');
@@ -1089,26 +1209,26 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
   uniq: (args, stdin = '') => {
     const file = args.find((arg) => !arg.startsWith('-'));
     let content = stdin;
-    
+
     if (!content && file) {
       const dir = fileSystem[currentDirectory];
       if (!dir) {
         return `uniq: ${file}: No such file or directory`;
       }
-      
+
       const fileObj = findFile(dir, file);
       if (!fileObj) {
         return `uniq: ${file}: No such file or directory`;
       }
-      
+
       const fileName = typeof fileObj === 'string' ? fileObj : fileObj.name;
       content = getFileContent(fileName);
     }
-    
+
     if (!content && !file) {
       return 'uniq: missing file operand';
     }
-    
+
     const lines = content.split('\n');
     const unique = [];
     let lastLine = null;
@@ -1125,50 +1245,66 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
     if (commandHistory.length === 0) {
       return '';
     }
-    return commandHistory.map((cmd, index) => `${index + 1}  ${cmd}`).join('\n');
+    return commandHistory
+      .map((cmd, index) => `${index + 1}  ${cmd}`)
+      .join('\n');
   },
 
   tree: (args) => {
     const path = args.find((arg) => !arg.startsWith('-')) || '.';
-    const depth = args.includes('-L') ? parseInt(args[args.indexOf('-L') + 1]) : Infinity;
-    
-    const searchPath = path === '.' ? currentDirectory : path.startsWith('/') ? path : `${currentDirectory}/${path}`;
+    const depth = args.includes('-L')
+      ? parseInt(args[args.indexOf('-L') + 1])
+      : Infinity;
+
+    const searchPath =
+      path === '.'
+        ? currentDirectory
+        : path.startsWith('/')
+          ? path
+          : `${currentDirectory}/${path}`;
     const dir = fileSystem[searchPath];
-    
+
     if (!dir) {
       return `tree: ${path}: No such file or directory`;
     }
-    
+
     function buildTree(dirPath, prefix = '', currentDepth = 0) {
       if (currentDepth >= depth) return '';
-      
+
       const dir = fileSystem[dirPath];
       if (!dir) return '';
-      
+
       let output = '';
       const allItems = [
         ...getDirectoryNames(dir).map((d) => ({ name: d, type: 'dir' })),
         ...getFileNames(dir).map((f) => ({ name: f, type: 'file' })),
       ];
-      
+
       allItems.forEach((item, index) => {
         const isLast = index === allItems.length - 1;
         const connector = isLast ? '└── ' : '├── ';
-        output += prefix + connector + item.name + (item.type === 'dir' ? '/' : '') + '\n';
-        
+        output +=
+          prefix +
+          connector +
+          item.name +
+          (item.type === 'dir' ? '/' : '') +
+          '\n';
+
         if (item.type === 'dir') {
-          const subPath = dirPath === '/' ? `/${item.name}` : `${dirPath}/${item.name}`;
+          const subPath =
+            dirPath === '/' ? `/${item.name}` : `${dirPath}/${item.name}`;
           if (fileSystem[subPath]) {
             const nextPrefix = prefix + (isLast ? '    ' : '│   ');
             output += buildTree(subPath, nextPrefix, currentDepth + 1);
           }
         }
       });
-      
+
       return output;
     }
-    
-    const baseName = searchPath === '/home/ryan/portfolio' ? '.' : searchPath.split('/').pop();
+
+    const baseName =
+      searchPath === '/home/ryan/portfolio' ? '.' : searchPath.split('/').pop();
     return baseName + '\n' + buildTree(searchPath, '', 0);
   },
 
@@ -1176,36 +1312,34 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
     if (args.length === 0) {
       return 'sudo: usage: sudo [-h] [-V] [-S] [-v] [-k] [-K] [-s] [-u username|#uid] command';
     }
-    
+
     const command = args[0];
     return `sudo: ${command}: command not found\n(Or maybe you just need to ask nicely? This is a portfolio site, not a real server! 😊)`;
   },
 
   chmod: (args) => {
     if (args.length < 2) {
-      return 'chmod: missing operand\nTry \'chmod --help\' for more information.';
+      return "chmod: missing operand\nTry 'chmod --help' for more information.";
     }
-    
+
     const mode = args[0];
     const target = args[1];
-    const fullPath = currentDirectory === '/' 
-      ? `/${target}` 
-      : `${currentDirectory}/${target}`;
-    
+    const fullPath =
+      currentDirectory === '/' ? `/${target}` : `${currentDirectory}/${target}`;
+
     return `chmod: changing permissions of '${fullPath}': Operation not permitted\n(This is a portfolio site - file permissions are read-only!)`;
   },
 
   chown: (args) => {
     if (args.length < 2) {
-      return 'chown: missing operand\nTry \'chown --help\' for more information.';
+      return "chown: missing operand\nTry 'chown --help' for more information.";
     }
-    
+
     const owner = args[0];
     const target = args[1];
-    const fullPath = currentDirectory === '/' 
-      ? `/${target}` 
-      : `${currentDirectory}/${target}`;
-    
+    const fullPath =
+      currentDirectory === '/' ? `/${target}` : `${currentDirectory}/${target}`;
+
     return `chown: changing ownership of '${fullPath}': Operation not permitted\n(This is a portfolio site - file ownership is read-only!)`;
   },
 
@@ -1214,7 +1348,7 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
     const r = args.includes('-r');
     const m = args.includes('-m');
     const s = args.includes('-s');
-    
+
     if (a) {
       return 'Linux portfolio 6.1.0-ryan-generic #1 SMP PREEMPT_DYNAMIC Mon Oct 15 10:00:00 UTC 2024 x86_64 GNU/Linux';
     }
@@ -1227,7 +1361,7 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
     if (s) {
       return 'Linux';
     }
-    
+
     return 'Linux';
   },
 
@@ -1242,7 +1376,7 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
     const load1 = '0.15';
     const load5 = '0.12';
     const load15 = '0.10';
-    
+
     return ` 10:30:45 up ${days} days, ${hours}:${minutes},  1 user,  load average: ${load1}, ${load5}, ${load15}`;
   },
 
@@ -1310,9 +1444,10 @@ function updateInputDisplay() {
 }
 
 function getPrompt() {
-  const dir = currentDirectory === '/home/ryan/portfolio' 
-    ? '~' 
-    : currentDirectory.replace('/home/ryan/portfolio', '~');
+  const dir =
+    currentDirectory === '/home/ryan/portfolio'
+      ? '~'
+      : currentDirectory.replace('/home/ryan/portfolio', '~');
   return `ryan@portfolio:${dir}$`;
 }
 
@@ -1332,29 +1467,45 @@ function getAutocompleteSuggestions(input) {
   const parts = trimmed.split(/\s+/);
   const command = parts[0] || '';
   const arg = parts[1] || '';
-  
+
   // If no command yet, suggest commands
   if (parts.length === 1 && arg === '') {
     const allCommands = Object.keys(commands);
     return allCommands.filter((cmd) => cmd.startsWith(command.toLowerCase()));
   }
-  
+
   // If command is cat, cd, cp, mv, rm, mkdir, rmdir, touch, less, more, head, tail, find, suggest files/directories
-  const fileCommands = ['cat', 'cp', 'mv', 'rm', 'touch', 'less', 'more', 'head', 'tail', 'wc', 'sort', 'uniq'];
+  const fileCommands = [
+    'cat',
+    'cp',
+    'mv',
+    'rm',
+    'touch',
+    'less',
+    'more',
+    'head',
+    'tail',
+    'wc',
+    'sort',
+    'uniq',
+  ];
   const dirCommands = ['cd', 'mkdir', 'rmdir'];
   const bothCommands = [...fileCommands, ...dirCommands];
-  
+
   if (bothCommands.includes(command.toLowerCase())) {
     const dir = fileSystem[currentDirectory];
     if (!dir) return [];
-    
+
     // Handle flags for rm, cp, mv commands
     let actualArg = arg;
-    if (command.toLowerCase() === 'rm' && (arg === '-rf' || arg === '-r' || arg === '-f')) {
+    if (
+      command.toLowerCase() === 'rm' &&
+      (arg === '-rf' || arg === '-r' || arg === '-f')
+    ) {
       const parts = input.trim().split(/\s+/);
       actualArg = parts[2] || '';
     }
-    
+
     // For cd, mkdir, rmdir: suggest directories only
     // For others: suggest both files and directories
     let items;
@@ -1363,37 +1514,37 @@ function getAutocompleteSuggestions(input) {
     } else {
       items = [...getFileNames(dir), ...getDirectoryNames(dir)];
     }
-    
+
     // Case-insensitive matching
     const lowerArg = actualArg.toLowerCase();
     return items.filter((item) => item.toLowerCase().startsWith(lowerArg));
   }
-  
+
   // If command is grep and we're in a pipe, don't suggest files
   // (grep pattern comes after the pipe)
   if (command.toLowerCase() === 'grep') {
     // Could suggest common patterns, but for now return empty
     return [];
   }
-  
+
   return [];
 }
 
 function handleAutocomplete() {
   const input = terminalInput.value;
   const suggestions = getAutocompleteSuggestions(input);
-  
+
   if (suggestions.length === 0) {
     // No suggestions, beep or do nothing
     return;
   }
-  
+
   if (suggestions.length === 1) {
     // Single match - complete it
     const parts = input.trim().split(/\s+/);
     const command = parts[0];
     const completion = suggestions[0];
-    
+
     if (parts.length === 1) {
       // Completing command
       terminalInput.value = completion + ' ';
@@ -1401,17 +1552,21 @@ function handleAutocomplete() {
       // Completing argument - preserve the original case of the input
       // Handle rm with flags
       let prefix = '';
-      if (command.toLowerCase() === 'rm' && (parts[1] === '-rf' || parts[1] === '-r' || parts[1] === '-f')) {
+      if (
+        command.toLowerCase() === 'rm' &&
+        (parts[1] === '-rf' || parts[1] === '-r' || parts[1] === '-f')
+      ) {
         prefix = parts[1] + ' ';
       }
-      
+
       // Find the matching item with correct case
       const dir = fileSystem[currentDirectory];
       let matchedItem = completion;
       if (dir) {
-        const allItems = command.toLowerCase() === 'cd' 
-          ? dir.directories 
-          : [...dir.files, ...dir.directories];
+        const allItems =
+          command.toLowerCase() === 'cd'
+            ? dir.directories
+            : [...dir.files, ...dir.directories];
         const found = allItems.find((item) => {
           const itemName = typeof item === 'string' ? item : item.name;
           return itemName.toLowerCase() === completion.toLowerCase();
@@ -1428,27 +1583,33 @@ function handleAutocomplete() {
     const parts = input.trim().split(/\s+/);
     const command = parts[0];
     let arg = parts[1] || '';
-    
+
     // Handle rm with flags
     let flagPrefix = '';
-    if (command.toLowerCase() === 'rm' && (arg === '-rf' || arg === '-r' || arg === '-f')) {
+    if (
+      command.toLowerCase() === 'rm' &&
+      (arg === '-rf' || arg === '-r' || arg === '-f')
+    ) {
       flagPrefix = arg + ' ';
       arg = parts[2] || '';
     }
-    
+
     // Find longest common prefix (case-insensitive)
     let commonPrefix = suggestions[0].toLowerCase();
     for (let i = 1; i < suggestions.length; i++) {
       const suggestion = suggestions[i].toLowerCase();
       let j = 0;
-      while (j < commonPrefix.length && j < suggestion.length && 
-             commonPrefix[j] === suggestion[j]) {
+      while (
+        j < commonPrefix.length &&
+        j < suggestion.length &&
+        commonPrefix[j] === suggestion[j]
+      ) {
         j++;
       }
       commonPrefix = commonPrefix.substring(0, j);
       if (commonPrefix === arg.toLowerCase()) break;
     }
-    
+
     if (commonPrefix.length > arg.length) {
       // Complete up to common prefix - use original case from first suggestion
       const prefixMatch = suggestions[0].substring(0, commonPrefix.length);
@@ -1463,23 +1624,23 @@ function handleAutocomplete() {
 
 function processCommand(input) {
   const trimmed = input.trim();
-  
+
   // Store reference to current input line before modifying
   const currentInputLine = inputLine;
-  
+
   // Get the text that was typed
   const inputText = input;
-  
+
   // Remove cursor element
   const cursorElement = currentInputLine.querySelector('.cursor');
   if (cursorElement) {
     cursorElement.remove();
   }
-  
+
   // Get the prompt that was used (before directory might change)
   const promptElement = currentInputLine.querySelector('.prompt');
   const promptText = promptElement ? promptElement.textContent : getPrompt();
-  
+
   // Convert input-content to regular text (remove the span wrapper)
   const inputContentElement = currentInputLine.querySelector('.input-content');
   if (inputContentElement) {
@@ -1487,15 +1648,15 @@ function processCommand(input) {
     const textNode = document.createTextNode(inputText);
     inputContentElement.parentNode.replaceChild(textNode, inputContentElement);
   }
-  
+
   // Update prompt in case directory changed (for cd command)
   if (promptElement) {
     promptElement.textContent = getPrompt();
   }
-  
+
   // Change class to terminal-line (this should maintain the same layout)
   currentInputLine.className = 'terminal-line';
-  
+
   // Only process command if there's actual input
   if (trimmed) {
     // Add command to history
@@ -1507,17 +1668,26 @@ function processCommand(input) {
       // Handle piped commands
       const pipeCommands = trimmed.split('|').map((cmd) => cmd.trim());
       let stdin = '';
-      
+
       for (let i = 0; i < pipeCommands.length; i++) {
         const cmdStr = pipeCommands[i];
         const parts = cmdStr.split(/\s+/);
         const command = parts[0].toLowerCase();
         const args = parts.slice(1);
-        
+
         if (commands[command]) {
           // Commands that accept stdin
-          const stdinCommands = ['grep', 'less', 'more', 'head', 'tail', 'wc', 'sort', 'uniq'];
-          
+          const stdinCommands = [
+            'grep',
+            'less',
+            'more',
+            'head',
+            'tail',
+            'wc',
+            'sort',
+            'uniq',
+          ];
+
           if (stdinCommands.includes(command)) {
             const output = commands[command](args, stdin);
             if (output !== null) {
@@ -1536,12 +1706,14 @@ function processCommand(input) {
           }
         } else {
           // Unknown command in pipe
-          addLine(`<span class="output error">${command}: command not found</span>`);
+          addLine(
+            `<span class="output error">${command}: command not found</span>`,
+          );
           stdin = '';
           break;
         }
       }
-      
+
       // Display final output (may contain HTML from grep highlighting)
       if (stdin !== '') {
         // Check if output contains HTML (from grep highlighting)
@@ -1570,14 +1742,14 @@ function processCommand(input) {
       }
     }
   }
-  
+
   // Always add new input line at the end
   const nextInputLine = createNewInputLine();
   terminalBody.appendChild(nextInputLine);
   inputLine = nextInputLine;
   inputContent = nextInputLine.querySelector('.input-content');
   cursor = nextInputLine.querySelector('.cursor');
-  
+
   // Clear input and focus
   terminalInput.value = '';
   updateInputDisplay();
@@ -1650,4 +1822,3 @@ const savedTheme = localStorage.getItem('theme') || 'dark';
 if (savedTheme === 'light') {
   document.body.classList.add('light-theme');
 }
-
