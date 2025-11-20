@@ -12,6 +12,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false || github.event_name != 'pull_request'
 
     steps:
     - uses: actions/checkout@v4
