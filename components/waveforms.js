@@ -29,6 +29,12 @@ const LINK_DATA = [
   },
   { name: 'CV', link: '/files/Ryan-Hill-CV.pdf', color: '#C0C0C0' },
   { name: 'qBraid', link: 'https://www.qbraid.com/', color: '#df0982' },
+  {
+    name: 'CLI',
+    link: '/cli.html',
+    color: '#00a86b', // Darker green for light theme
+    darkColor: '#00ff00', // Bright green for dark theme
+  },
 ];
 
 let waveFunctions = [];
