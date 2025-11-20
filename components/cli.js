@@ -967,7 +967,7 @@ This is a portfolio site - pip is not available!
     }
 
     const command = args[0];
-    
+
     if (command === 'install') {
       const packageName = args[1] || 'package';
       return `Collecting ${packageName}
@@ -977,7 +977,7 @@ Successfully installed ${packageName}-1.0.0
 
 (Just kidding! This is a portfolio site - pip install is disabled for security reasons.)`;
     }
-    
+
     if (command === 'uninstall') {
       const packageName = args[1] || 'package';
       return `Found existing installation: ${packageName} 1.0.0
@@ -986,7 +986,7 @@ Uninstalling ${packageName}-1.0.0:
 
 (Just kidding! This is a portfolio site - pip uninstall is disabled.)`;
     }
-    
+
     if (command === 'list') {
       return `Package    Version
 ---------- -------
@@ -996,7 +996,7 @@ wheel      0.38.4
 
 (This is a mock list - pip is not actually available on this portfolio site!)`;
     }
-    
+
     if (command === 'freeze') {
       return `pip==23.0.1
 setuptools==65.5.0
@@ -1004,7 +1004,7 @@ wheel==0.38.4
 
 (This is a mock output - pip is not actually available on this portfolio site!)`;
     }
-    
+
     if (command === 'show') {
       const packageName = args[1] || 'pip';
       return `Name: ${packageName}
@@ -1015,7 +1015,7 @@ Requires:
 
 (This is a mock output - pip is not actually available on this portfolio site!)`;
     }
-    
+
     if (command === 'search') {
       const query = args[1] || 'package';
       return `Searching for "${query}" on PyPI...
@@ -1023,19 +1023,19 @@ No packages found matching "${query}".
 
 (This is a portfolio site - pip search is disabled!)`;
     }
-    
+
     if (command === 'check') {
       return `No broken requirements found.
 
 (This is a portfolio site - pip check is disabled!)`;
     }
-    
+
     if (command === '--version' || command === '-V') {
       return `pip 23.0.1 from /usr/local/lib/python3.11/site-packages/pip (python 3.11)
 
 (This is a mock version - pip is not actually available on this portfolio site!)`;
     }
-    
+
     return `pip: unknown command "${command}"
 Type 'pip --help' for usage.
 
@@ -1484,8 +1484,10 @@ origin  https://github.com/ryanhill1/ryanhill1.github.io.git (push)`;
 // Vector DB-based response generator
 async function handleQuestion(input) {
   // Show thinking indicator
-  const thinkingLine = addLine('<span class="output info">Searching knowledge base...</span>');
-  
+  const thinkingLine = addLine(
+    '<span class="output info">Searching knowledge base...</span>',
+  );
+
   try {
     // Check if vector DB is available
     if (typeof window.vectorDB === 'undefined') {
@@ -1495,32 +1497,29 @@ async function handleQuestion(input) {
       addLine(`<span class="output info">${response}</span>`);
       return;
     }
-    
+
     // Search vector database
     const results = await window.vectorDB.search(input, {
       threshold: 0.5, // Higher threshold for better precision
       maxResults: 2, // Limit to top 2 most relevant chunks
     });
-    
+
     thinkingLine.remove();
-    
+
     if (results.length === 0) {
       // No relevant results found
       const response = generateMockResponse(input);
       addLine(`<span class="output info">${response}</span>`);
       return;
     }
-    
+
     // Build response from retrieved context
-    const context = results
-      .map((r, i) => `${i + 1}. ${r.text}`)
-      .join('\n\n');
-    
+    const context = results.map((r, i) => `${i + 1}. ${r.text}`).join('\n\n');
+
     // Generate response (for now, just show the context)
     // In production, you'd send this to an LLM API for better responses
     const response = formatVectorResponse(input, results);
     addLine(`<span class="output info">${response}</span>`);
-    
   } catch (error) {
     console.error('Vector search error:', error);
     thinkingLine.remove();
@@ -1534,41 +1533,45 @@ function formatVectorResponse(query, results) {
   if (results.length === 0) {
     return generateMockResponse(query);
   }
-  
+
   // Use only the top result for focused answers
   const topResult = results[0];
-  
+
   // If similarity is very high, use that chunk directly
   // Otherwise, try to extract a more focused answer
   let response = '';
-  
+
   if (topResult.similarity > 0.65) {
     // High confidence - use the most relevant chunk
     response = topResult.text;
-    
+
     // If the chunk is very long, try to extract the most relevant sentence
     if (response.length > 500) {
-      const sentences = response.split(/[.!?]+/).filter(s => s.trim().length > 0);
+      const sentences = response
+        .split(/[.!?]+/)
+        .filter((s) => s.trim().length > 0);
       const queryWords = query.toLowerCase().split(/\s+/);
-      
+
       // Find sentence with most query word matches
       let bestSentence = sentences[0];
       let maxMatches = 0;
-      
+
       for (const sentence of sentences) {
         const sentenceLower = sentence.toLowerCase();
-        const matches = queryWords.filter(word => sentenceLower.includes(word)).length;
+        const matches = queryWords.filter((word) =>
+          sentenceLower.includes(word),
+        ).length;
         if (matches > maxMatches) {
           maxMatches = matches;
           bestSentence = sentence.trim();
         }
       }
-      
+
       // Use best sentence plus some context
       if (bestSentence.length > 50) {
         response = bestSentence + '.';
         // Add next sentence if it's short
-        const bestIndex = sentences.findIndex(s => s.trim() === bestSentence);
+        const bestIndex = sentences.findIndex((s) => s.trim() === bestSentence);
         if (bestIndex >= 0 && bestIndex < sentences.length - 1) {
           const nextSentence = sentences[bestIndex + 1].trim();
           if (nextSentence.length < 200) {
@@ -1597,10 +1600,10 @@ function formatVectorResponse(query, results) {
     const words = topResult.text.split(/\s+/);
     response = words.slice(0, 50).join(' ') + (words.length > 50 ? '...' : '');
   }
-  
+
   // Clean up the response (remove excessive whitespace, fix formatting)
   response = response.replace(/\s+/g, ' ').trim();
-  
+
   return response;
 }
 

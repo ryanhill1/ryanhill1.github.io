@@ -1,9 +1,9 @@
 /**
  * Vector Database for CLI RAG (Retrieval-Augmented Generation)
- * 
+ *
  * This module provides vector search capabilities for intelligent responses
  * based on uploaded documents (CV, etc.)
- * 
+ *
  * Options:
  * 1. Client-side: Uses transformers.js (runs in browser, no server needed)
  * 2. Server-side: Uses external API (Pinecone, Supabase, etc.)
@@ -14,16 +14,16 @@
 const VECTOR_DB_CONFIG = {
   // Choose implementation: 'client', 'server', or 'hybrid'
   mode: 'hybrid', // Start with hybrid (pre-computed embeddings)
-  
+
   // For client-side: embedding model
   embeddingModel: 'Xenova/all-MiniLM-L6-v2', // Lightweight, fast model
-  
+
   // For server-side: API endpoints
   serverEndpoint: '/api/vector-search',
-  
+
   // Similarity threshold
   similarityThreshold: 0.5,
-  
+
   // Max results to return
   maxResults: 3,
 };
@@ -39,8 +39,13 @@ async function initVectorDB() {
   if (VECTOR_DB_CONFIG.mode === 'client') {
     // Load transformers.js for client-side embeddings
     try {
-      const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
-      embeddingPipeline = await pipeline('feature-extraction', VECTOR_DB_CONFIG.embeddingModel);
+      const { pipeline } = await import(
+        'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2'
+      );
+      embeddingPipeline = await pipeline(
+        'feature-extraction',
+        VECTOR_DB_CONFIG.embeddingModel,
+      );
       console.log('Vector DB initialized (client-side mode)');
     } catch (error) {
       console.error('Failed to load transformers.js:', error);
@@ -48,7 +53,7 @@ async function initVectorDB() {
       VECTOR_DB_CONFIG.mode = 'hybrid';
     }
   }
-  
+
   // Load pre-computed embeddings if in hybrid mode
   if (VECTOR_DB_CONFIG.mode === 'hybrid') {
     await loadPrecomputedEmbeddings();
@@ -66,7 +71,9 @@ async function loadPrecomputedEmbeddings() {
       vectorStore = data.embeddings || [];
       console.log(`Loaded ${vectorStore.length} pre-computed embeddings`);
     } else {
-      console.warn('No pre-computed embeddings found. Run embedding generation script first.');
+      console.warn(
+        'No pre-computed embeddings found. Run embedding generation script first.',
+      );
       // Initialize with empty store - can be populated via upload
       vectorStore = [];
     }
@@ -87,7 +94,7 @@ async function generateEmbedding(text) {
     });
     return Array.from(output.data);
   }
-  
+
   // For hybrid/server mode, embeddings should be pre-computed
   throw new Error('Embedding generation not available in current mode');
 }
@@ -99,17 +106,17 @@ function cosineSimilarity(vecA, vecB) {
   if (vecA.length !== vecB.length) {
     throw new Error('Vectors must have the same length');
   }
-  
+
   let dotProduct = 0;
   let normA = 0;
   let normB = 0;
-  
+
   for (let i = 0; i < vecA.length; i++) {
     dotProduct += vecA[i] * vecB[i];
     normA += vecA[i] * vecA[i];
     normB += vecB[i] * vecB[i];
   }
-  
+
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
@@ -119,7 +126,7 @@ function cosineSimilarity(vecA, vecB) {
 async function searchSimilar(query, options = {}) {
   const threshold = options.threshold || VECTOR_DB_CONFIG.similarityThreshold;
   const maxResults = options.maxResults || VECTOR_DB_CONFIG.maxResults;
-  
+
   if (VECTOR_DB_CONFIG.mode === 'server') {
     // Server-side search
     try {
@@ -135,10 +142,10 @@ async function searchSimilar(query, options = {}) {
       return [];
     }
   }
-  
+
   // Client-side or hybrid search
   let queryEmbedding;
-  
+
   if (VECTOR_DB_CONFIG.mode === 'client' && embeddingPipeline) {
     // Generate embedding on-the-fly
     queryEmbedding = await generateEmbedding(query);
@@ -147,10 +154,18 @@ async function searchSimilar(query, options = {}) {
     // If not available, fall back to keyword search
     if (!embeddingPipeline) {
       try {
-        const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
-        embeddingPipeline = await pipeline('feature-extraction', VECTOR_DB_CONFIG.embeddingModel);
+        const { pipeline } = await import(
+          'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2'
+        );
+        embeddingPipeline = await pipeline(
+          'feature-extraction',
+          VECTOR_DB_CONFIG.embeddingModel,
+        );
       } catch (error) {
-        console.warn('Could not load transformers.js, using keyword search:', error);
+        console.warn(
+          'Could not load transformers.js, using keyword search:',
+          error,
+        );
         return keywordSearch(query, maxResults);
       }
     }
@@ -159,7 +174,7 @@ async function searchSimilar(query, options = {}) {
     // Fallback to keyword search
     return keywordSearch(query, maxResults);
   }
-  
+
   // Calculate similarities
   const results = vectorStore
     .map((doc) => ({
@@ -169,7 +184,7 @@ async function searchSimilar(query, options = {}) {
     .filter((doc) => doc.similarity >= threshold)
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, maxResults);
-  
+
   return results;
 }
 
@@ -178,18 +193,18 @@ async function searchSimilar(query, options = {}) {
  */
 function keywordSearch(query, maxResults) {
   const queryLower = query.toLowerCase();
-  const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2); // Filter out short words
-  
+  const queryWords = queryLower.split(/\s+/).filter((w) => w.length > 2); // Filter out short words
+
   if (queryWords.length === 0) {
     return [];
   }
-  
+
   const results = vectorStore
     .map((doc) => {
       const textLower = doc.text.toLowerCase();
       let score = 0;
       let exactMatches = 0;
-      
+
       // Count matching words with weighting
       queryWords.forEach((word) => {
         // Exact word match (higher weight)
@@ -201,16 +216,17 @@ function keywordSearch(query, maxResults) {
           score += 1;
         }
       });
-      
+
       // Normalize by query length and boost exact matches
-      score = (score / queryWords.length) * (1 + exactMatches / queryWords.length);
-      
+      score =
+        (score / queryWords.length) * (1 + exactMatches / queryWords.length);
+
       return { ...doc, similarity: Math.min(score, 1.0) };
     })
     .filter((doc) => doc.similarity > 0.3) // Higher threshold for keyword search
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, maxResults);
-  
+
   return results;
 }
 
@@ -219,15 +235,17 @@ function keywordSearch(query, maxResults) {
  */
 async function addDocument(text, metadata = {}) {
   let embedding;
-  
+
   if (VECTOR_DB_CONFIG.mode === 'client' && embeddingPipeline) {
     embedding = await generateEmbedding(text);
   } else {
     // In hybrid/server mode, need to generate embeddings server-side
     // or use a pre-computation script
-    throw new Error('Document addition requires client-side mode or server API');
+    throw new Error(
+      'Document addition requires client-side mode or server API',
+    );
   }
-  
+
   const doc = {
     id: Date.now().toString(),
     text,
@@ -237,7 +255,7 @@ async function addDocument(text, metadata = {}) {
       addedAt: new Date().toISOString(),
     },
   };
-  
+
   vectorStore.push(doc);
   return doc.id;
 }
@@ -248,14 +266,14 @@ async function addDocument(text, metadata = {}) {
 function chunkText(text, chunkSize = 500, overlap = 50) {
   const words = text.split(/\s+/);
   const chunks = [];
-  
+
   for (let i = 0; i < words.length; i += chunkSize - overlap) {
     const chunk = words.slice(i, i + chunkSize).join(' ');
     if (chunk.trim()) {
       chunks.push(chunk);
     }
   }
-  
+
   return chunks;
 }
 
@@ -265,7 +283,7 @@ function chunkText(text, chunkSize = 500, overlap = 50) {
 async function indexDocument(text, metadata = {}) {
   const chunks = chunkText(text);
   const docIds = [];
-  
+
   for (let i = 0; i < chunks.length; i++) {
     const chunkMetadata = {
       ...metadata,
@@ -275,7 +293,7 @@ async function indexDocument(text, metadata = {}) {
     const id = await addDocument(chunks[i], chunkMetadata);
     docIds.push(id);
   }
-  
+
   return docIds;
 }
 
@@ -289,4 +307,3 @@ if (typeof window !== 'undefined') {
     chunkText,
   };
 }
-

@@ -1,12 +1,12 @@
 /**
  * Script to generate embeddings for documents
- * 
+ *
  * Run this script to pre-compute embeddings for your CV and other documents.
  * This enables the hybrid mode (faster, no client-side model loading).
- * 
+ *
  * Usage:
  *   node scripts/generate-embeddings.js
- * 
+ *
  * Or use the Python version for better performance:
  *   python scripts/generate_embeddings.py
  */
@@ -49,14 +49,14 @@ const documents = [
 function chunkText(text, chunkSize = 500, overlap = 50) {
   const words = text.split(/\s+/);
   const chunks = [];
-  
+
   for (let i = 0; i < words.length; i += chunkSize - overlap) {
     const chunk = words.slice(i, i + chunkSize).join(' ');
     if (chunk.trim()) {
       chunks.push(chunk);
     }
   }
-  
+
   return chunks;
 }
 
@@ -66,32 +66,34 @@ function chunkText(text, chunkSize = 500, overlap = 50) {
 async function generateEmbeddings() {
   console.log('Loading embedding model...');
   const extractor = await pipeline('feature-extraction', EMBEDDING_MODEL);
-  
+
   const allEmbeddings = [];
-  
+
   for (const doc of documents) {
     const filePath = path.join(DOCUMENTS_DIR, doc.file);
-    
+
     if (!fs.existsSync(filePath)) {
       console.warn(`File not found: ${filePath}`);
       continue;
     }
-    
+
     console.log(`Processing ${doc.file}...`);
     const text = fs.readFileSync(filePath, 'utf-8');
     const chunks = chunkText(text);
-    
+
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
-      console.log(`  Generating embedding for chunk ${i + 1}/${chunks.length}...`);
-      
+      console.log(
+        `  Generating embedding for chunk ${i + 1}/${chunks.length}...`,
+      );
+
       const output = await extractor(chunk, {
         pooling: 'mean',
         normalize: true,
       });
-      
+
       const embedding = Array.from(output.data);
-      
+
       allEmbeddings.push({
         id: `${doc.metadata.type}_${i}`,
         text: chunk,
@@ -105,18 +107,18 @@ async function generateEmbeddings() {
       });
     }
   }
-  
+
   // Save embeddings
   const outputDir = path.dirname(OUTPUT_FILE);
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
-  
+
   fs.writeFileSync(
     OUTPUT_FILE,
     JSON.stringify({ embeddings: allEmbeddings }, null, 2),
   );
-  
+
   console.log(`\n✅ Generated ${allEmbeddings.length} embeddings`);
   console.log(`Saved to: ${OUTPUT_FILE}`);
 }
@@ -125,4 +127,3 @@ async function generateEmbeddings() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   generateEmbeddings().catch(console.error);
 }
-
